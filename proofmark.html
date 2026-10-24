@@ -1,0 +1,1925 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ProofMark AI — Brand Content Governance</title>
+  <meta name="description" content="Evidence-first brand content governance. Check marketing copy against approved facts before publishing." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    /* ═══════════════════════════════════════
+       DESIGN TOKENS
+    ═══════════════════════════════════════ */
+    :root {
+      --bg:        #080C18;
+      --s0:        #0D1117;
+      --s1:        #161B2E;
+      --s2:        #1E2540;
+      --s3:        #252D4A;
+      --bd:        rgba(255,255,255,0.08);
+      --bdhi:      rgba(255,255,255,0.16);
+      --tx:        #EEF2FF;
+      --txm:       #8B9CC8;
+      --txf:       #4B5889;
+
+      --brand:     #4F8EF7;
+      --bglow:     rgba(79,142,247,0.15);
+
+      --ok:        #22C55E;
+      --okbg:      rgba(34,197,94,0.10);
+      --okbd:      rgba(34,197,94,0.25);
+
+      --bad:       #EF4444;
+      --badbg:     rgba(239,68,68,0.10);
+      --badbd:     rgba(239,68,68,0.25);
+
+      --warn:      #F59E0B;
+      --warnbg:    rgba(245,158,11,0.10);
+      --warnbd:    rgba(245,158,11,0.25);
+
+      --info:      #60A5FA;
+      --infobg:    rgba(96,165,250,0.10);
+      --infobd:    rgba(96,165,250,0.25);
+
+      --r:         10px;
+      --rlg:       16px;
+      --rxl:       20px;
+      --sh:        0 4px 24px rgba(0,0,0,0.45);
+      --shlg:      0 8px 40px rgba(0,0,0,0.65);
+      --sw:        228px;
+    }
+
+    /* ═══════════════════════════════════════
+       RESET & BASE
+    ═══════════════════════════════════════ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { height: 100%; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--tx);
+      min-height: 100vh;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    a { color: var(--brand); }
+    button { font-family: inherit; cursor: pointer; }
+
+    /* ═══════════════════════════════════════
+       LAYOUT
+    ═══════════════════════════════════════ */
+    .shell {
+      display: grid;
+      grid-template-columns: var(--sw) 1fr;
+      grid-template-rows: 56px 1fr;
+      min-height: 100vh;
+    }
+
+    /* Top bar */
+    .topbar {
+      grid-column: 1 / -1;
+      background: var(--s0);
+      border-bottom: 1px solid var(--bd);
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .logo { display: flex; align-items: center; gap: 9px; text-decoration: none; }
+    .logo-mark {
+      width: 30px; height: 30px;
+      background: linear-gradient(135deg,#4F8EF7,#7C3AED);
+      border-radius: 7px;
+      display: grid; place-items: center;
+      font-size: 14px; font-weight: 800; color: #fff;
+    }
+    .logo-name { font-size: 15px; font-weight: 700; color: var(--tx); }
+    .logo-name span { color: var(--brand); }
+    .topbar-right { display: flex; align-items: center; gap: 10px; }
+
+    .apichip {
+      display: flex; align-items: center; gap: 6px;
+      padding: 4px 12px;
+      background: var(--s1); border: 1px solid var(--bd);
+      border-radius: 99px; font-size: 12px; color: var(--txm);
+      cursor: pointer; transition: all .18s;
+    }
+    .apichip:hover { border-color: var(--brand); color: var(--tx); }
+    .apichip .dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--txf); transition: all .3s; flex-shrink: 0;
+    }
+    .apichip.on .dot { background: var(--ok); box-shadow: 0 0 6px var(--ok); }
+    .apichip.on { color: var(--ok); border-color: var(--okbd); }
+
+    /* Sidebar */
+    .sidebar {
+      background: var(--s0); border-right: 1px solid var(--bd);
+      padding: 14px 10px;
+      display: flex; flex-direction: column;
+      position: sticky; top: 56px;
+      height: calc(100vh - 56px);
+      overflow-y: auto;
+    }
+    .nlabel {
+      font-size: 10px; font-weight: 600; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--txf);
+      padding: 0 8px; margin: 13px 0 4px;
+    }
+    .nbtn {
+      display: flex; align-items: center; gap: 9px;
+      width: 100%; padding: 8px 11px; border-radius: 8px;
+      color: var(--txm); font-size: 13px; font-weight: 500;
+      background: transparent; border: none; text-align: left;
+      transition: all .14s;
+    }
+    .nbtn .ni { font-size: 15px; width: 19px; text-align: center; flex-shrink: 0; }
+    .nbtn:hover { background: var(--s1); color: var(--tx); }
+    .nbtn.active { background: var(--bglow); color: var(--brand); border: 1px solid rgba(79,142,247,.2); }
+    .nbtn .nbc {
+      margin-left: auto; background: var(--brand); color: #fff;
+      font-size: 10px; font-weight: 700; padding: 1px 7px; border-radius: 99px;
+    }
+    .nbtn .nbc.g { background: var(--ok); }
+    .nbtn .nbc.warn { background: var(--warn); color: #000; }
+    .sfoot {
+      margin-top: auto; padding-top: 14px; border-top: 1px solid var(--bd);
+      font-size: 11px; color: var(--txf); padding-left: 10px; line-height: 1.7;
+    }
+
+    /* Main */
+    .main { background: var(--bg); padding: 28px 30px; overflow-y: auto; }
+    .tab { display: none; }
+    .tab.active { display: block; }
+
+    /* ═══════════════════════════════════════
+       COMPONENTS
+    ═══════════════════════════════════════ */
+    /* Page header */
+    .ph { margin-bottom: 20px; }
+    .ph h1 { font-size: 20px; font-weight: 700; margin-bottom: 3px; }
+    .ph p  { font-size: 13px; color: var(--txm); }
+
+    /* Card */
+    .card {
+      background: var(--s1); border: 1px solid var(--bd);
+      border-radius: var(--rlg); padding: 22px; margin-bottom: 16px;
+      transition: border-color .18s;
+    }
+    .card:hover { border-color: var(--bdhi); }
+    .card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .card-title { font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 7px; }
+
+    /* Grids */
+    .g3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 13px; margin-bottom: 20px; }
+    .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    /* Stat card */
+    .sc {
+      background: var(--s1); border: 1px solid var(--bd);
+      border-radius: var(--r); padding: 15px 17px;
+      display: flex; align-items: center; gap: 12px;
+      transition: all .18s;
+    }
+    .sc:hover { transform: translateY(-2px); box-shadow: var(--sh); border-color: var(--bdhi); }
+    .sci { width: 40px; height: 40px; border-radius: 8px; display: grid; place-items: center; font-size: 18px; flex-shrink: 0; }
+    .scv { font-size: 22px; font-weight: 700; line-height: 1; }
+    .scl { font-size: 11.5px; color: var(--txm); margin-top: 2px; }
+
+    /* Form */
+    .fg { margin-bottom: 13px; }
+    label {
+      display: block; font-size: 11px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: .04em;
+      color: var(--txm); margin-bottom: 5px;
+    }
+    input, textarea, select {
+      width: 100%; background: var(--s2); border: 1px solid var(--bd);
+      border-radius: 8px; color: var(--tx); font-family: inherit;
+      font-size: 13.5px; padding: 9px 13px; transition: all .18s; outline: none;
+    }
+    input:focus, textarea:focus, select:focus {
+      border-color: var(--brand); box-shadow: 0 0 0 3px var(--bglow);
+    }
+    input::placeholder, textarea::placeholder { color: var(--txf); }
+    textarea { resize: vertical; min-height: 88px; line-height: 1.6; }
+    select option { background: var(--s1); }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 16px; border-radius: 8px; font-family: inherit;
+      font-size: 13px; font-weight: 600; border: none;
+      cursor: pointer; transition: all .18s;
+    }
+    .btn:disabled { opacity: .55; cursor: not-allowed !important; transform: none !important; }
+    .btn-p { background: var(--brand); color: #fff; }
+    .btn-p:hover:not(:disabled) { background: #3B7EE8; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(79,142,247,.35); }
+    .btn-g { background: transparent; color: var(--txm); border: 1px solid var(--bd); }
+    .btn-g:hover { background: var(--s2); color: var(--tx); }
+    .btn-d { background: var(--badbg); color: var(--bad); border: 1px solid var(--badbd); }
+    .btn-d:hover { background: rgba(239,68,68,.2); }
+    .btn-ok { background: var(--okbg); color: var(--ok); border: 1px solid var(--okbd); }
+    .btn-ok:hover { background: rgba(34,197,94,.2); }
+    .btn-w { background: var(--warnbg); color: var(--warn); border: 1px solid var(--warnbd); }
+    .btn-w:hover { background: rgba(245,158,11,.2); }
+    .btn-ai {
+      background: linear-gradient(135deg,var(--brand),#7C3AED); color: #fff;
+      box-shadow: 0 4px 18px rgba(79,142,247,.3);
+      padding: 11px 22px; font-size: 14px;
+    }
+    .btn-ai:hover:not(:disabled) { opacity: .92; transform: translateY(-1px); box-shadow: 0 6px 24px rgba(79,142,247,.45); }
+    .btn-sm { padding: 5px 11px; font-size: 12px; }
+
+    /* Spinner */
+    .spin {
+      display: inline-block; width: 15px; height: 15px;
+      border: 2px solid rgba(255,255,255,.25); border-top-color: #fff;
+      border-radius: 50%; animation: rot .7s linear infinite;
+    }
+    @keyframes rot { to { transform: rotate(360deg); } }
+
+    /* ═══════════════════════════════════════
+       FACT CARDS
+    ═══════════════════════════════════════ */
+    .flist { display: flex; flex-direction: column; gap: 11px; }
+    .fcard {
+      background: var(--s1); border: 1px solid var(--bd);
+      border-radius: var(--r); padding: 15px 17px;
+      display: flex; align-items: flex-start; gap: 13px;
+      transition: all .18s;
+    }
+    .fcard:hover { border-color: var(--bdhi); background: var(--s2); }
+    .fid-badge {
+      background: var(--s3); border: 1px solid var(--bd); border-radius: 6px;
+      padding: 4px 10px; font-size: 11px; font-weight: 700; color: var(--brand);
+      font-family: 'Courier New', monospace; letter-spacing: .05em;
+      white-space: nowrap; flex-shrink: 0; min-width: 58px; text-align: center;
+    }
+    .fbody { flex: 1; min-width: 0; }
+    .ftitle { font-size: 13px; font-weight: 600; color: var(--tx); margin-bottom: 3px; }
+    .fcontent { font-size: 13px; color: var(--txm); line-height: 1.5; }
+    .fmeta { display: flex; align-items: center; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+    .factions { display: flex; gap: 6px; flex-shrink: 0; margin-top: 2px; }
+
+    /* Category pills */
+    .cp { font-size: 10px; font-weight: 600; padding: 2px 9px; border-radius: 99px; letter-spacing: .04em; text-transform: uppercase; }
+    .cp-product     { background: rgba(99,102,241,.14); color: #818CF8; border: 1px solid rgba(99,102,241,.3); }
+    .cp-rule        { background: rgba(245,158,11,.12);  color: #FCD34D; border: 1px solid rgba(245,158,11,.25); }
+    .cp-terminology { background: rgba(34,211,238,.1);   color: #67E8F9; border: 1px solid rgba(34,211,238,.2); }
+    .cp-other       { background: var(--s3); color: var(--txm); border: 1px solid var(--bd); }
+
+    /* ═══════════════════════════════════════
+       CLASSIFICATION BADGES
+    ═══════════════════════════════════════ */
+    .badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 4px 11px; border-radius: 99px;
+      font-size: 11px; font-weight: 700; white-space: nowrap;
+    }
+    .b-supported    { background: var(--okbg);   color: var(--ok);   border: 1px solid var(--okbd);   }
+    .b-conflicting  { background: var(--badbg);  color: var(--bad);  border: 1px solid var(--badbd);  }
+    .b-insufficient { background: var(--warnbg); color: var(--warn); border: 1px solid var(--warnbd); }
+    .b-gap          { background: var(--infobg); color: var(--info); border: 1px solid var(--infobd); }
+
+    /* Summary pills */
+    .sumbar { display: flex; gap: 9px; flex-wrap: wrap; margin-bottom: 16px; }
+    .spill { display: flex; align-items: center; gap: 6px; padding: 7px 13px; border-radius: 8px; font-size: 12.5px; font-weight: 600; }
+    .sp-supported    { background: var(--okbg);   color: var(--ok);   border: 1px solid var(--okbd);   }
+    .sp-conflicting  { background: var(--badbg);  color: var(--bad);  border: 1px solid var(--badbd);  }
+    .sp-insufficient { background: var(--warnbg); color: var(--warn); border: 1px solid var(--warnbd); }
+    .sp-gap          { background: var(--infobg); color: var(--info); border: 1px solid var(--infobd); }
+
+    /* ═══════════════════════════════════════
+       RESULTS TABLE
+    ═══════════════════════════════════════ */
+    .rtable { width: 100%; border-collapse: separate; border-spacing: 0; }
+    .rtable th {
+      font-size: 10.5px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: .07em; color: var(--txf); padding: 10px 14px;
+      text-align: left; background: var(--s2); border-bottom: 1px solid var(--bd);
+    }
+    .rtable th:first-child { border-radius: 8px 0 0 0; }
+    .rtable th:last-child  { border-radius: 0 8px 0 0; }
+    .rtable td { padding: 13px 14px; border-bottom: 1px solid var(--bd); vertical-align: top; font-size: 13px; }
+    .rtable tr:last-child td { border-bottom: none; }
+    .rtable tr:hover td { background: rgba(255,255,255,.02); }
+    .rtable .row-conflicting  td:first-child { border-left: 3px solid var(--bad); }
+    .rtable .row-supported    td:first-child { border-left: 3px solid var(--ok); }
+    .rtable .row-insufficient td:first-child { border-left: 3px solid var(--warn); }
+    .rtable .row-gap          td:first-child { border-left: 3px solid var(--info); }
+    .claim-q { font-style: italic; color: var(--tx); }
+    .expl    { color: var(--txm); font-size: 12.5px; line-height: 1.5; margin-top: 5px; }
+    .src     { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; color: var(--txf); font-family: monospace; margin-top: 5px; }
+
+    /* Evidence Traceability Card */
+    .ev-list { display: flex; flex-direction: column; gap: 7px; margin-top: 8px; }
+    .ev-card { background: var(--s2); border: 1px solid var(--bd); border-radius: 7px; padding: 7px 10px; font-size: 12px; }
+    .ev-top  { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 3px; flex-wrap: wrap; }
+    .ev-tag  { display: inline-flex; align-items: center; gap: 5px; font-family: monospace; font-size: 11px; font-weight: 700; color: var(--brand); cursor: pointer; background: var(--bglow); padding: 2px 7px; border-radius: 4px; border: 1px solid rgba(79,142,247,0.3); transition: all .15s; }
+    .ev-tag:hover { background: rgba(79,142,247,0.25); border-color: var(--brand); transform: translateY(-1px); }
+    .ev-quote { font-style: italic; color: var(--txm); line-height: 1.4; font-size: 11.5px; }
+    .ev-missing { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; color: var(--txf); margin-top: 6px; font-style: italic; }
+    .ev-missing.gap { color: #93C5FD; }
+    @keyframes factPulse {
+      0%   { box-shadow: 0 0 0 0 rgba(79,142,247,0.9); border-color: var(--brand); }
+      50%  { box-shadow: 0 0 20px 6px rgba(79,142,247,0.5); border-color: var(--brand); }
+      100% { box-shadow: 0 0 0 0 rgba(79,142,247,0); }
+    }
+    .fcard-pulse { animation: factPulse 1.4s ease-in-out 2; border-color: var(--brand) !important; }
+
+    /* ═══════════════════════════════════════
+       REVIEWER SECTION
+    ═══════════════════════════════════════ */
+    .revsec { background: var(--s1); border: 1px solid var(--bd); border-radius: var(--rlg); padding: 22px; margin-top: 16px; }
+    .revtitle { font-size: 14px; font-weight: 600; margin-bottom: 13px; display: flex; align-items: center; justify-content: space-between; gap: 7px; flex-wrap: wrap; }
+    .revactions { display: flex; gap: 9px; margin-top: 13px; flex-wrap: wrap; }
+    .revactions button:disabled { opacity: 0.38; cursor: not-allowed; pointer-events: none; }
+    .decres { background: var(--s2); border-radius: 8px; padding: 13px; margin-top: 13px; display: none; }
+    .decres.show { display: block; }
+    .drh { font-size: 13px; font-weight: 700; margin-bottom: 3px; }
+    .drb { font-size: 12.5px; color: var(--txm); }
+    .stale-box { display: none; margin-bottom: 14px; padding: 10px 14px; border-radius: var(--r); background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.35); color: #FCA5A5; font-size: 13px; font-weight: 500; }
+
+    /* ═══════════════════════════════════════
+       AUDIT LOG
+    ═══════════════════════════════════════ */
+    .aentry { background: var(--s1); border: 1px solid var(--bd); border-radius: var(--r); padding: 15px 17px; margin-bottom: 11px; transition: border-color .18s; }
+    .aentry:hover { border-color: var(--bdhi); }
+    .ahead { display: flex; align-items: center; justify-content: space-between; margin-bottom: 9px; flex-wrap: wrap; gap: 7px; }
+    .ameta { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
+    .atime { font-size: 11px; color: var(--txf); font-family: monospace; }
+    .aprv  { font-size: 12.5px; color: var(--txm); font-style: italic; border-left: 3px solid var(--bd); padding-left: 10px; margin: 7px 0; }
+    .acmt  { font-size: 12.5px; background: var(--s2); padding: 8px 12px; border-radius: 6px; margin-top: 7px; }
+    .astats { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 7px; }
+    .dbadge { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 99px; }
+    .d-approved { background: var(--okbg);   color: var(--ok);   border: 1px solid var(--okbd);   }
+    .d-changes  { background: var(--warnbg); color: var(--warn); border: 1px solid var(--warnbd); }
+    .d-rejected { background: var(--badbg);  color: var(--bad);  border: 1px solid var(--badbd);  }
+
+    /* ═══════════════════════════════════════
+       MODAL
+    ═══════════════════════════════════════ */
+    .backdrop {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.75); backdrop-filter: blur(4px);
+      z-index: 500; display: none; align-items: center; justify-content: center;
+    }
+    .backdrop.open { display: flex; }
+    .modal {
+      background: var(--s1); border: 1px solid var(--bdhi);
+      border-radius: var(--rxl); padding: 26px;
+      width: 100%; max-width: 448px;
+      box-shadow: var(--shlg); animation: mIn .2s ease;
+    }
+    @keyframes mIn { from { transform: scale(.96); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    .mhead { display: flex; align-items: center; justify-content: space-between; margin-bottom: 17px; }
+    .mtitle { font-size: 15px; font-weight: 700; }
+    .mclose { background: transparent; border: none; color: var(--txm); font-size: 20px; cursor: pointer; padding: 2px 6px; border-radius: 5px; line-height: 1; }
+    .mclose:hover { background: var(--s2); color: var(--tx); }
+    .mfoot { display: flex; gap: 8px; justify-content: flex-end; margin-top: 17px; }
+
+    /* ═══════════════════════════════════════
+       TOAST
+    ═══════════════════════════════════════ */
+    #toasts { position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+    .toast {
+      background: var(--s2); border: 1px solid var(--bdhi);
+      border-radius: 8px; padding: 10px 16px; font-size: 13px;
+      color: var(--tx); box-shadow: var(--shlg);
+      animation: tIn .25s ease; max-width: 340px;
+    }
+    .toast.ok   { border-color: var(--okbd); }
+    .toast.err  { border-color: var(--badbd); }
+    .toast.info { border-color: var(--infobd); }
+    @keyframes tIn { from { transform: translateX(110%); opacity: 0; } to { transform: none; opacity: 1; } }
+
+    /* Empty state */
+    .empty { text-align: center; padding: 42px 20px; color: var(--txf); }
+    .empty .ei { font-size: 42px; margin-bottom: 9px; }
+    .empty h3 { font-size: 14px; font-weight: 600; color: var(--txm); margin-bottom: 4px; }
+    .empty p  { font-size: 13px; }
+
+    /* Warning bar */
+    .wbar { display: flex; align-items: center; gap: 7px; background: var(--warnbg); border: 1px solid var(--warnbd); border-radius: 8px; padding: 9px 13px; font-size: 12.5px; color: var(--warn); margin-bottom: 13px; }
+
+    /* Search */
+    .swrap { position: relative; }
+    .swrap input { padding-left: 33px; }
+    .sico { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 13px; color: var(--txf); pointer-events: none; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--s3); border-radius: 99px; }
+
+    /* Responsive */
+    @media (max-width: 800px) {
+      .shell { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+      .g3 { grid-template-columns: 1fr 1fr; }
+      .main { padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- ════════════════════════════
+       TOP BAR
+  ════════════════════════════ -->
+  <header class="topbar">
+    <div class="logo">
+      <div class="logo-mark">P</div>
+      <span class="logo-name">Proof<span>Mark</span> AI</span>
+    </div>
+    <div class="topbar-right">
+      <div class="apichip" id="apiChip" onclick="openApiModal()">
+        <div class="dot"></div>
+        <span id="apiChipTxt">Set API Key</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ════════════════════════════
+       SIDEBAR
+  ════════════════════════════ -->
+  <nav class="sidebar">
+    <div class="nlabel">Workspace</div>
+    <button class="nbtn active" data-tab="facts" onclick="goTab('facts')">
+      <span class="ni">📚</span> Fact Store
+      <span class="nbc" id="fBadge">0</span>
+    </button>
+    <button class="nbtn" data-tab="check" onclick="goTab('check')">
+      <span class="ni">🔍</span> Check Content
+    </button>
+    <button class="nbtn" data-tab="gaps" onclick="goTab('gaps')">
+      <span class="ni">💡</span> Draft Guidelines
+      <span class="nbc warn" id="gBadge" style="display:none">0</span>
+    </button>
+    <button class="nbtn" data-tab="audit" onclick="goTab('audit')">
+      <span class="ni">📋</span> Audit Log
+      <span class="nbc g" id="aBadge" style="display:none">0</span>
+    </button>
+
+    <div class="nlabel" style="margin-top:16px">Tools</div>
+    <button class="nbtn" onclick="openApiModal()"><span class="ni">🔑</span> API Settings</button>
+    <button class="nbtn" onclick="loadSeed()"><span class="ni">🌱</span> Load Demo Data</button>
+    <button class="nbtn btn-d" style="margin-top:4px" onclick="clearAll()"><span class="ni">🗑️</span> Clear All Data</button>
+
+    <div class="sfoot">
+      ProofMark AI v0.1<br>
+      <span style="color:var(--brand)">We Code Coders Hackathon</span>
+    </div>
+  </nav>
+
+  <!-- ════════════════════════════
+       MAIN
+  ════════════════════════════ -->
+  <main class="main">
+
+    <!-- ── TAB: FACT STORE ── -->
+    <div class="tab active" id="tab-facts">
+      <div class="ph">
+        <h1>📚 Brand Fact Store</h1>
+        <p>Manage approved brand facts, product specs, and guidelines used to check marketing copy.</p>
+      </div>
+
+      <!-- Stats -->
+      <div class="g3">
+        <div class="sc"><div class="sci" style="background:rgba(99,102,241,.15)">📦</div><div><div class="scv" id="sProduct">0</div><div class="scl">Product Specs</div></div></div>
+        <div class="sc"><div class="sci" style="background:rgba(245,158,11,.12)">📜</div><div><div class="scv" id="sRule">0</div><div class="scl">Brand Rules</div></div></div>
+        <div class="sc"><div class="sci" style="background:rgba(34,211,238,.1)">💬</div><div><div class="scv" id="sTerm">0</div><div class="scl">Terminology</div></div></div>
+      </div>
+
+      <!-- Add Fact Form -->
+      <div class="card">
+        <div class="card-head"><div class="card-title">➕ Add Brand Fact</div></div>
+        <div class="g2" style="margin-bottom:12px">
+          <div class="fg" style="margin-bottom:0"><label for="iId">Fact ID</label><input id="iId" type="text" placeholder="e.g. NS-01" maxlength="20" /></div>
+          <div class="fg" style="margin-bottom:0"><label for="iCat">Category</label>
+            <select id="iCat">
+              <option value="product">Product Specification</option>
+              <option value="rule">Brand Rule</option>
+              <option value="terminology">Terminology</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+        </div>
+        <div class="fg"><label for="iTitle">Short Title</label><input id="iTitle" type="text" placeholder="e.g. Battery Life Specification" maxlength="100" /></div>
+        <div class="fg"><label for="iContent">Approved Fact / Guideline</label><textarea id="iContent" rows="3" placeholder="Enter the exact approved fact, rule, or guideline text…"></textarea></div>
+        <button class="btn btn-p" onclick="addFact()">➕ Add Fact</button>
+      </div>
+
+      <!-- List Controls -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:9px">
+        <div style="font-size:13px;font-weight:600;color:var(--txm)">
+          All Facts &nbsp;<span id="fCount" style="font-size:11px;background:var(--s2);padding:1px 8px;border-radius:99px;color:var(--txf)">0</span>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <div class="swrap"><span class="sico">🔍</span><input type="text" id="fsearch" placeholder="Search facts…" style="width:175px" oninput="renderFacts()" /></div>
+          <select id="ffilter" style="width:auto;padding:8px 12px;font-size:12px" onchange="renderFacts()">
+            <option value="">All</option><option value="product">Product Spec</option>
+            <option value="rule">Brand Rule</option><option value="terminology">Terminology</option><option value="other">Other</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="flist" id="factList"></div>
+    </div>
+
+    <!-- ── TAB: CHECK CONTENT ── -->
+    <div class="tab" id="tab-check">
+      <div class="ph">
+        <h1>🔍 Check Marketing Copy</h1>
+        <p>Submit draft content for AI-powered fact-checking against your approved brand facts.</p>
+      </div>
+
+      <div class="wbar" id="noFactsWarn" style="display:none">
+        ⚠️ <span>No facts loaded. <button class="btn btn-g btn-sm" onclick="goTab('facts')">Go to Fact Store →</button></span>
+      </div>
+
+      <div class="card">
+        <div class="card-head" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+          <div class="card-title">✍️ Draft Content</div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span class="vbadge" id="draftVersionBadge" style="font-size:11.5px;padding:3px 9px;border-radius:99px;background:var(--s2);color:var(--brand);font-weight:600;border:1px solid var(--bd)">Draft v1</span>
+            <span class="sbadge" id="draftStatusBadge" style="font-size:11.5px;padding:3px 9px;border-radius:99px;background:rgba(255,255,255,0.06);color:var(--txm);font-weight:500">Unchecked</span>
+          </div>
+        </div>
+        <div class="fg"><label for="copyIn">Marketing Copy to Check</label>
+          <textarea id="copyIn" rows="6" placeholder="Paste or type your marketing copy here…" oninput="handleCopyInput()"></textarea>
+        </div>
+        <div class="g2" style="margin-bottom:13px">
+          <div class="fg" style="margin-bottom:0"><label for="revName">Reviewer Name</label><input id="revName" type="text" placeholder="Your name" /></div>
+          <div class="fg" style="margin-bottom:0"><label for="brandIn">Brand Name</label><input id="brandIn" type="text" placeholder="e.g. NovaSound" /></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+          <button class="btn btn-ai" id="checkBtn" onclick="runCheck()">
+            <span id="checkIco">🔍</span><span id="checkTxt">Check Copy</span>
+          </button>
+          <span id="checkModeHint" style="font-size:12px;color:var(--txf)">Offline demo mode active (rule-based) · or set API key for Gemini AI</span>
+        </div>
+      </div>
+
+      <!-- Results -->
+      <div id="resultsWrap" style="display:none">
+        <div id="offlineNotice" style="display:none;margin-bottom:12px;padding:10px 14px;border-radius:var(--r);font-size:13px;font-weight:500;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.35);color:#FBBF24;align-items:center;gap:8px">
+          <span>⚙️ <strong>Offline demo mode</strong> — rule-based results, not AI-generated.</span>
+        </div>
+        <div style="font-size:14px;font-weight:600;margin-bottom:12px">📊 Classification Results</div>
+        <div class="sumbar" id="sumBar"></div>
+        <div class="card" style="padding:0;overflow:hidden">
+          <table class="rtable" id="rtable">
+            <thead>
+              <tr>
+                <th style="width:34%">Claim</th>
+                <th style="width:21%">Classification</th>
+                <th>Explanation &amp; Source</th>
+              </tr>
+            </thead>
+            <tbody id="rtbody"></tbody>
+          </table>
+        </div>
+
+        <div class="revsec" id="revSec">
+          <div id="staleWarn" class="stale-box">
+            ⚠️ <strong>Draft modified (New Revision)</strong> — The previous reviewer decision is invalidated. Click <strong>Check Copy</strong> to re-verify this revision before reviewing.
+          </div>
+          <div class="revtitle">
+            <span>👤 Reviewer Decision</span>
+            <span id="revVersionTag" style="font-size:11.5px;color:var(--txm);font-weight:500">Reviewing: Draft v1</span>
+          </div>
+          <div class="fg"><label for="revComment">Comment (optional)</label>
+            <textarea id="revComment" rows="3" placeholder="Add notes for the copywriter…"></textarea>
+          </div>
+          <div class="revactions">
+            <button class="btn btn-ok" id="btnApprove" style="font-size:13px;padding:9px 17px" onclick="decide('approved')">✅ Approve</button>
+            <button class="btn btn-w"  id="btnChanges" style="font-size:13px;padding:9px 17px" onclick="decide('changes')">⚠️ Request Changes</button>
+            <button class="btn btn-d"  id="btnReject"  style="font-size:13px;padding:9px 17px" onclick="decide('rejected')">❌ Reject</button>
+          </div>
+          <div class="decres" id="decRes">
+            <div class="drh" id="drH"></div>
+            <div class="drb" id="drB"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── TAB: AUDIT LOG ── -->
+    <div class="tab" id="tab-audit">
+      <div class="ph">
+        <h1>📋 Audit Log</h1>
+        <p>Timestamped record of every content review and reviewer decision.</p>
+      </div>
+      <div id="auditLog"></div>
+    </div>
+
+    <!-- ── TAB: DRAFT GUIDELINES (GAP INTELLIGENCE) ── -->
+    <div class="tab" id="tab-gaps">
+      <div class="ph">
+        <h1>💡 Draft Guidelines &amp; Gap Intelligence</h1>
+        <p>Review brand guidelines suggested from unverified marketing copy. Brand managers can review, edit, or approve drafts into the official Fact Store.</p>
+      </div>
+
+      <div class="wbar" style="margin-bottom:18px">
+        ℹ️ <span><strong>Brand Manager Review Required:</strong> Suggestions remain strictly in draft status. They are never automatically applied as approved guidelines until you explicitly click <em>Approve into Fact Store</em>.</span>
+      </div>
+
+      <div id="suggestionsList"></div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ════════════════════════════
+     API KEY MODAL
+════════════════════════════ -->
+<div class="backdrop" id="apiModal">
+  <div class="modal">
+    <div class="mhead"><div class="mtitle">🔑 Gemini API Settings</div><button class="mclose" onclick="closeApiModal()">×</button></div>
+    <p style="font-size:13px;color:var(--txm);margin-bottom:15px;line-height:1.65">
+      ProofMark AI uses the <strong>Google Gemini API</strong> (free tier) for AI classification.<br>
+      Get a free key at <a href="https://aistudio.google.com" target="_blank">aistudio.google.com</a> → Create API Key.
+    </p>
+    <div class="fg"><label for="apiKeyIn">API Key</label><input type="password" id="apiKeyIn" placeholder="AIza…" autocomplete="off" /></div>
+    <div class="fg"><label for="modelIn">Model</label>
+      <select id="modelIn">
+        <option value="gemini-3.5-flash-lite">gemini-3.5-flash-lite (Recommended — fast &amp; lightweight)</option>
+        <option value="gemini-2.5-flash">gemini-2.5-flash</option>
+        <option value="gemini-2.0-flash">gemini-2.0-flash</option>
+      </select>
+    </div>
+    <div class="mfoot">
+      <button class="btn btn-g" onclick="closeApiModal()">Cancel</button>
+      <button class="btn btn-p" onclick="saveApiKey()">Save Key</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════
+     EDIT FACT MODAL
+════════════════════════════ -->
+<div class="backdrop" id="editModal">
+  <div class="modal">
+    <div class="mhead"><div class="mtitle">✏️ Edit Fact</div><button class="mclose" onclick="closeEdit()">×</button></div>
+    <input type="hidden" id="eKey" />
+    <div class="g2" style="margin-bottom:12px">
+      <div class="fg" style="margin-bottom:0"><label for="eId">Fact ID</label><input id="eId" type="text" maxlength="20" /></div>
+      <div class="fg" style="margin-bottom:0"><label for="eCat">Category</label>
+        <select id="eCat">
+          <option value="product">Product Specification</option>
+          <option value="rule">Brand Rule</option>
+          <option value="terminology">Terminology</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+    </div>
+    <div class="fg" style="margin-top:12px"><label for="eTitle">Short Title</label><input id="eTitle" type="text" maxlength="100" /></div>
+    <div class="fg"><label for="eContent">Approved Fact / Guideline</label><textarea id="eContent" rows="4"></textarea></div>
+    <div class="mfoot">
+      <button class="btn btn-g" onclick="closeEdit()">Cancel</button>
+      <button class="btn btn-p" onclick="saveEdit()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════
+     SUGGEST GUIDELINE MODAL
+════════════════════════════ -->
+<div class="backdrop" id="suggestModal">
+  <div class="modal">
+    <div class="mhead"><div class="mtitle">💡 Suggest Brand Guideline (Draft)</div><button class="mclose" onclick="closeSuggestModal()">×</button></div>
+    <p style="font-size:12.5px;color:var(--txm);margin-bottom:14px;line-height:1.55">
+      Turn this detected guideline gap into a draft brand guideline. It will remain in draft status until a brand manager approves it into the Fact Store.
+    </p>
+    <input type="hidden" id="sugKey" />
+    <input type="hidden" id="sugOrigClaim" />
+    <div class="g2" style="margin-bottom:12px">
+      <div class="fg" style="margin-bottom:0"><label for="sugId">Suggested Fact ID</label><input id="sugId" type="text" maxlength="20" placeholder="e.g. NS-08" /></div>
+      <div class="fg" style="margin-bottom:0"><label for="sugCat">Category</label>
+        <select id="sugCat">
+          <option value="product">Product Specification</option>
+          <option value="rule">Brand Rule</option>
+          <option value="terminology">Terminology</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+    </div>
+    <div class="fg" style="margin-top:12px"><label for="sugTitle">Short Title</label><input id="sugTitle" type="text" maxlength="100" placeholder="e.g. Water Resistance Specification" /></div>
+    <div class="fg"><label for="sugContent">Proposed Approved Guideline Text</label><textarea id="sugContent" rows="3" placeholder="Define the exact approved specification or rule..."></textarea></div>
+    <div class="fg">
+      <label style="font-size:11px;color:var(--txm)">Originating Marketing Claim (Trigger)</label>
+      <div id="sugClaimPreview" style="font-size:12px;font-style:italic;color:var(--txf);padding:8px;background:var(--s2);border-radius:6px"></div>
+    </div>
+    <div class="mfoot">
+      <button class="btn btn-g" onclick="closeSuggestModal()">Cancel</button>
+      <button class="btn btn-p" onclick="saveSuggestion()">Save Draft Suggestion</button>
+    </div>
+  </div>
+</div>
+
+<div id="toasts"></div>
+
+<!-- ════════════════════════════
+     APP LOGIC
+════════════════════════════ -->
+<script>
+'use strict';
+
+/* ─── STORAGE ─── */
+const KF = 'pm_facts', KA = 'pm_audit', KS = 'pm_settings', KG = 'pm_suggestions';
+const loadFacts       = () => { try { return JSON.parse(localStorage.getItem(KF)||'[]'); } catch { return []; } };
+const saveFacts       = d  => localStorage.setItem(KF, JSON.stringify(d));
+const loadAudit       = () => { try { return JSON.parse(localStorage.getItem(KA)||'[]'); } catch { return []; } };
+const saveAudit       = d  => localStorage.setItem(KA, JSON.stringify(d));
+const loadSettings    = () => { try { return JSON.parse(localStorage.getItem(KS)||'{}'); } catch { return {}; } };
+const saveSettings    = d  => localStorage.setItem(KS, JSON.stringify(d));
+const loadSuggestions = () => { try { return JSON.parse(localStorage.getItem(KG)||'[]'); } catch { return []; } };
+const saveSuggestions = d  => localStorage.setItem(KG, JSON.stringify(d));
+
+/* ─── UTILS ─── */
+const uid  = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+const esc  = s  => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const fmt  = iso=> new Date(iso).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+const fmtT = iso=> new Date(iso).toLocaleString('en-IN',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+const trunc = (s,n) => s&&s.length>n ? s.slice(0,n)+'…' : (s||'');
+
+/* ─── NAV ─── */
+function goTab(name) {
+  document.querySelectorAll('.tab').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.nbtn[data-tab]').forEach(el=>el.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  const nb = document.querySelector(`.nbtn[data-tab="${name}"]`);
+  if (nb) nb.classList.add('active');
+  if (name==='facts') renderFacts();
+  if (name==='audit') renderAudit();
+  if (name==='gaps')  renderSuggestions();
+  if (name==='check') checkNoFacts();
+}
+
+/* ─── TOAST ─── */
+function toast(msg, type='info') {
+  const c=document.getElementById('toasts');
+  const el=document.createElement('div');
+  el.className='toast '+type; el.textContent=msg; c.appendChild(el);
+  setTimeout(()=>{ el.style.transition='all .3s'; el.style.opacity='0'; el.style.transform='translateX(110%)'; setTimeout(()=>el.remove(),300); },3400);
+}
+
+/* ─── STATS / BADGES ─── */
+function updateStats() {
+  const facts=loadFacts();
+  const c={product:0,rule:0,terminology:0,other:0};
+  facts.forEach(f=>c[f.cat]=(c[f.cat]||0)+1);
+  document.getElementById('sProduct').textContent=c.product;
+  document.getElementById('sRule').textContent=c.rule;
+  document.getElementById('sTerm').textContent=c.terminology;
+  document.getElementById('fBadge').textContent=facts.length;
+  document.getElementById('fCount').textContent=facts.length+' fact'+(facts.length!==1?'s':'');
+  const log=loadAudit(), ab=document.getElementById('aBadge');
+  ab.style.display=log.length?'':'none'; ab.textContent=log.length;
+  const sugs=loadSuggestions(), gb=document.getElementById('gBadge');
+  if (gb) {
+    gb.style.display=sugs.length?'':'none';
+    gb.textContent=sugs.length;
+  }
+}
+
+/* ─── FACT CRUD ─── */
+function addFact() {
+  const id=document.getElementById('iId').value.trim().toUpperCase();
+  const title=document.getElementById('iTitle').value.trim();
+  const content=document.getElementById('iContent').value.trim();
+  const cat=document.getElementById('iCat').value;
+  if (!id)      { toast('⚠️ Fact ID is required','err'); return; }
+  if (!title)   { toast('⚠️ Short title is required','err'); return; }
+  if (!content) { toast('⚠️ Fact content is required','err'); return; }
+  const facts=loadFacts();
+  if (facts.find(f=>f.fid.toLowerCase()===id.toLowerCase())) { toast(`❌ Fact ID "${id}" already exists`,'err'); return; }
+  facts.push({key:uid(),fid:id,title,content,cat,created:new Date().toISOString()});
+  saveFacts(facts);
+  ['iId','iTitle','iContent'].forEach(x=>document.getElementById(x).value='');
+  document.getElementById('iCat').value='product';
+  renderFacts(); updateStats();
+  toast(`✅ Fact ${id} added`,'ok');
+}
+
+function deleteFact(key) {
+  if (!confirm('Delete this fact? This cannot be undone.')) return;
+  let facts=loadFacts();
+  const f=facts.find(x=>x.key===key);
+  saveFacts(facts.filter(x=>x.key!==key));
+  renderFacts(); updateStats();
+  toast(`🗑️ Fact ${f?.fid||''} deleted`,'info');
+}
+
+function openEdit(key) {
+  const f=loadFacts().find(x=>x.key===key); if (!f) return;
+  document.getElementById('eKey').value=key;
+  document.getElementById('eId').value=f.fid;
+  document.getElementById('eTitle').value=f.title;
+  document.getElementById('eContent').value=f.content;
+  document.getElementById('eCat').value=f.cat;
+  document.getElementById('editModal').classList.add('open');
+}
+function closeEdit() { document.getElementById('editModal').classList.remove('open'); }
+
+function saveEdit() {
+  const key=document.getElementById('eKey').value;
+  const fid=document.getElementById('eId').value.trim().toUpperCase();
+  const title=document.getElementById('eTitle').value.trim();
+  const content=document.getElementById('eContent').value.trim();
+  const cat=document.getElementById('eCat').value;
+  if (!fid||!title||!content) { toast('⚠️ All fields required','err'); return; }
+  let facts=loadFacts();
+  if (facts.find(f=>f.fid.toLowerCase()===fid.toLowerCase()&&f.key!==key)) { toast(`❌ Fact ID "${fid}" already exists`,'err'); return; }
+  facts=facts.map(f=>f.key===key?{...f,fid,title,content,cat,updated:new Date().toISOString()}:f);
+  saveFacts(facts); closeEdit(); renderFacts(); updateStats();
+  toast('✅ Fact updated','ok');
+}
+
+/* ─── RENDER: FACT LIST ─── */
+function cpill(cat) {
+  const m={product:'Product Spec',rule:'Brand Rule',terminology:'Terminology',other:'Other'};
+  return `<span class="cp cp-${cat}">${m[cat]||cat}</span>`;
+}
+
+function renderFacts() {
+  const facts=loadFacts();
+  const q=(document.getElementById('fsearch')?.value||'').toLowerCase();
+  const filter=document.getElementById('ffilter')?.value||'';
+  const list=document.getElementById('factList');
+  const shown=facts.filter(f=>
+    (!q||f.fid.toLowerCase().includes(q)||f.title.toLowerCase().includes(q)||f.content.toLowerCase().includes(q))&&
+    (!filter||f.cat===filter)
+  );
+  if (shown.length===0) {
+    list.innerHTML=facts.length===0
+      ?`<div class="empty"><div class="ei">📭</div><h3>No facts yet</h3><p>Add your first fact above, or click <strong>Load Demo Data</strong> in the sidebar.</p></div>`
+      :`<div class="empty"><div class="ei">🔍</div><h3>No results</h3><p>Try a different search or clear the filter.</p></div>`;
+    return;
+  }
+  list.innerHTML=shown.map(f=>`
+    <div class="fcard" id="fc-${esc(f.fid)}" data-key="${f.key}">
+      <div class="fid-badge">${esc(f.fid)}</div>
+      <div class="fbody">
+        <div class="ftitle">${esc(f.title)}</div>
+        <div class="fcontent">${esc(f.content)}</div>
+        <div class="fmeta">${cpill(f.cat)}<span style="font-size:11px;color:var(--txf)">${fmt(f.created)}</span>${f.updated?`<span style="font-size:11px;color:var(--txf)">(edited)</span>`:''}</div>
+      </div>
+      <div class="factions">
+        <button class="btn btn-g btn-sm" onclick="openEdit('${f.key}')">✏️ Edit</button>
+        <button class="btn btn-d btn-sm" onclick="deleteFact('${f.key}')">🗑️</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function viewFactInStore(fid) {
+  goTab('facts');
+  const search = document.getElementById('fsearch');
+  if (search) search.value = '';
+  const filter = document.getElementById('ffilter');
+  if (filter) filter.value = '';
+  renderFacts();
+  setTimeout(() => {
+    const card = document.getElementById('fc-' + fid);
+    if (card) {
+      card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      card.classList.add('fcard-pulse');
+      setTimeout(() => card.classList.remove('fcard-pulse'), 3000);
+    }
+  }, 90);
+}
+
+/* ─── SEED DATA: NovaSound ─── */
+const SEED=[
+  {fid:'NS-01',title:'Battery Life Specification',content:'NovaSound headphones offer up to 10 hours of battery life on a single charge.',cat:'product'},
+  {fid:'NS-02',title:'Target Audience',content:'NovaSound is designed for commuters and remote workers who need reliable, comfortable audio throughout the workday.',cat:'product'},
+  {fid:'NS-03',title:'Driver Specification',content:'NovaSound headphones use 40 mm custom-tuned dynamic drivers for balanced, full-range audio.',cat:'product'},
+  {fid:'NS-04',title:'Connectivity',content:'NovaSound headphones support Bluetooth 5.2 and include a 3.5 mm audio jack for wired fallback.',cat:'product'},
+  {fid:'NS-05',title:'Brand Tone Rule',content:'NovaSound brand copy must be clear, direct, and confidence-inspiring. Avoid superlatives ("best", "most", "world-class") unless backed by a verified third-party award or study.',cat:'rule'},
+  {fid:'NS-06',title:'Banned Term — Noise Cancelling',content:'Do NOT use "noise-cancelling" or "ANC" — the product does not have active noise cancellation. Use "passive noise isolation" instead.',cat:'terminology'},
+  {fid:'NS-07',title:'Warranty Statement',content:'All NovaSound products carry a 1-year manufacturer warranty against defects.',cat:'rule'},
+];
+
+function loadSeed() {
+  const existing=loadFacts(); let added=0; const all=[...existing];
+  SEED.forEach(s=>{ if (!all.find(f=>f.fid===s.fid)) { all.push({key:uid(),...s,created:new Date().toISOString()}); added++; } });
+  saveFacts(all);
+  const be=document.getElementById('brandIn'); if (be&&!be.value) be.value='NovaSound';
+  const ce=document.getElementById('copyIn');
+  if (ce&&!ce.value.trim()) ce.value="NovaSound headphones deliver up to 15 hours of battery life, making them India's most trusted wireless headphones for everyday use. Equipped with noise-cancelling technology and 50 mm drivers, they're perfect for your daily commute.";
+  handleCopyInput();
+  renderFacts(); updateStats();
+  toast(`🌱 Loaded ${added} demo fact${added!==1?'s':''}  `,'ok');
+}
+
+function clearAll() {
+  if (!confirm('Clear ALL facts, draft suggestions, and audit log entries? This cannot be undone.')) return;
+  [KF,KA,KG].forEach(k=>localStorage.removeItem(k));
+  document.getElementById('resultsWrap').style.display='none';
+  currentDraftVersion = 1;
+  verifiedCopy = '';
+  hasDecision = false;
+  lastDecisionType = null;
+  lastDecisionInfo = null;
+  handleCopyInput();
+  renderFacts(); renderSuggestions(); renderAudit(); updateStats();
+  toast('🗑️ All data cleared','info');
+}
+
+/* ─── API KEY MODAL ─── */
+function openApiModal() {
+  const s=loadSettings();
+  document.getElementById('apiKeyIn').value=s.apiKey||'';
+  let m = s.model || 'gemini-3.5-flash-lite';
+  if (m === 'gemini-1.5-flash' || m === 'gemini-1.5-pro' || m === 'gemini-2.0-flash-exp') {
+    m = 'gemini-3.5-flash-lite';
+  }
+  document.getElementById('modelIn').value=m;
+  document.getElementById('apiModal').classList.add('open');
+}
+function closeApiModal() { document.getElementById('apiModal').classList.remove('open'); }
+function saveApiKey() {
+  const key=document.getElementById('apiKeyIn').value.trim();
+  const model=document.getElementById('modelIn').value;
+  if (!key) { toast('⚠️ API key cannot be empty','err'); return; }
+  saveSettings({...loadSettings(),apiKey:key,model});
+  updateApiChip(); closeApiModal();
+  toast('🔑 API key saved','ok');
+}
+function updateApiChip() {
+  const s=loadSettings(), chip=document.getElementById('apiChip'), txt=document.getElementById('apiChipTxt'), hint=document.getElementById('checkModeHint');
+  if (s.apiKey) {
+    chip.classList.add('on');
+    txt.textContent='API Connected';
+    if (hint) hint.textContent='Powered by Gemini AI (API Key configured)';
+  } else {
+    chip.classList.remove('on');
+    txt.textContent='Set API Key';
+    if (hint) hint.textContent='Offline demo mode active (rule-based) · or set API key for Gemini AI';
+  }
+}
+
+/* ─── OFFLINE / RULE-BASED CLASSIFIER ─── */
+function runOfflineCheck(copy, facts) {
+  const claims = splitIntoClaims(copy);
+  return claims.map(c => evaluateClaim(c, facts));
+}
+
+function splitIntoClaims(text) {
+  const trimmed = text.trim();
+  const rawSentences = trimmed.split(/(?<=[.!?])\s+|\n+/).map(s => s.trim().replace(/^[•\-\*]\s*/, '')).filter(Boolean);
+  const claims = [];
+
+  for (const sentence of rawSentences) {
+    const clauses = sentence.split(/,\s*(?=making\s+them|equipped\s+with|featuring|perfect\s+for|they're\s+perfect)|\band\s+(?=\d+\s*mm\s*drivers?)/i)
+      .map(c => c.trim().replace(/^[,.\s]+|[,.\s]+$/g, ''))
+      .filter(Boolean);
+
+    if (clauses.length > 1) {
+      claims.push(...clauses);
+    } else {
+      claims.push(sentence.replace(/[.]+$/, ''));
+    }
+  }
+
+  return claims.length > 0 ? claims : [trimmed];
+}
+
+function evaluateClaim(claim, facts) {
+  const lc = claim.toLowerCase();
+  const allFacts = facts || [];
+
+  // Helper: find facts matching keyword in title, content, or FID
+  const findF = (regex, cat = null) => allFacts.filter(f =>
+    (!cat || f.cat === cat) && (regex.test(f.title) || regex.test(f.content) || regex.test(f.fid))
+  );
+
+  const batteryMatch = claim.match(/(\d+)\s*(?:hours?|hrs?)/i);
+  const hasBattery = (lc.includes('battery') || lc.includes('hour') || lc.includes('charge') || lc.includes('life')) && batteryMatch;
+  const hasBt = lc.includes('bluetooth') || lc.includes('3.5 mm') || lc.includes('audio jack');
+  const hasAnc = lc.includes('noise-cancelling') || lc.includes('noise cancelling') || /\banc\b/.test(lc);
+
+  // Multi-fact check: Battery + Bluetooth
+  if (hasBattery && hasBt) {
+    const hours = parseInt(batteryMatch[1], 10);
+    const bFact = findF(/battery|charge|hours/i, 'product')[0] || { fid: 'NS-01', content: 'up to 10 hours of battery life' };
+    const cFact = findF(/bluetooth|connectivity|3\.5/i, 'product')[0] || { fid: 'NS-04', content: 'Bluetooth 5.2' };
+    const bOk = hours === 10 || (hours <= 10 && lc.includes('up to'));
+    if (bOk) {
+      return {
+        claim,
+        classification: 'supported',
+        explanation: `Supported by approved specifications: Battery life matches ${bFact.fid} (up to 10 hours) and connectivity matches ${cFact.fid} (Bluetooth 5.2 & 3.5 mm jack).`,
+        sourceFact: bFact.fid,
+        sourceFacts: [bFact.fid, cFact.fid]
+      };
+    } else {
+      return {
+        claim,
+        classification: 'conflicting',
+        explanation: `Partially conflicting: While connectivity matches ${cFact.fid}, claimed battery life of ${hours} hours contradicts verified specification ${bFact.fid} (up to 10 hours).`,
+        sourceFact: bFact.fid,
+        sourceFacts: [bFact.fid, cFact.fid]
+      };
+    }
+  }
+
+  // Multi-fact check: Battery + Noise Cancelling
+  if (hasBattery && hasAnc) {
+    const hours = parseInt(batteryMatch[1], 10);
+    const bFact = findF(/battery|charge|hours/i, 'product')[0] || { fid: 'NS-01', content: 'up to 10 hours' };
+    const tFact = findF(/noise[- ]cancelling|anc|passive noise/i, 'terminology')[0] || { fid: 'NS-06', content: 'passive noise isolation' };
+    return {
+      claim,
+      classification: 'conflicting',
+      explanation: `Contradicts multiple approved specifications: Battery life (${hours}h) contradicts ${bFact.fid} (up to 10h), and active noise-cancelling violates ${tFact.fid} (product uses passive noise isolation).`,
+      sourceFact: bFact.fid,
+      sourceFacts: [bFact.fid, tFact.fid]
+    };
+  }
+
+  // 1. Single Battery Life Check
+  if (hasBattery) {
+    const hours = parseInt(batteryMatch[1], 10);
+    const bFact = findF(/battery|charge|hours/i, 'product')[0] || { fid: 'NS-01', content: 'NovaSound headphones offer up to 10 hours of battery life on a single charge.' };
+    if (hours === 10 || (hours <= 10 && (lc.includes('up to') || lc.includes('offer') || lc.includes('deliver')))) {
+      return {
+        claim,
+        classification: 'supported',
+        explanation: `Directly supported by approved specification ${bFact.fid}: NovaSound headphones offer up to 10 hours of battery life on a single charge.`,
+        sourceFact: bFact.fid,
+        sourceFacts: [bFact.fid]
+      };
+    } else {
+      return {
+        claim,
+        classification: 'conflicting',
+        explanation: `Contradicts approved specification ${bFact.fid}. Verified battery life is up to 10 hours on a single charge (claim asserts ${hours} hours).`,
+        sourceFact: bFact.fid,
+        sourceFacts: [bFact.fid]
+      };
+    }
+  }
+
+  // 2. Superlatives / "Most trusted" / "India's most trusted" / "#1" / "Best"
+  if (lc.includes('most trusted') || lc.includes("india's most") || lc.includes('world-class') || /\bbest\b/i.test(lc) || /\b#1\b/.test(lc)) {
+    const toneFact = findF(/superlative|brand tone|tone/i, 'rule')[0];
+    return {
+      claim,
+      classification: 'insufficient',
+      explanation: `Insufficient evidence: No approved facts or verified third-party studies substantiate the claim of being "most trusted". ${toneFact ? `Brand Tone Rule ${toneFact.fid} prohibits superlatives without verified proof.` : ''}`.trim(),
+      sourceFact: null,
+      sourceFacts: []
+    };
+  }
+
+  // 3. Noise Cancellation / ANC
+  if (hasAnc) {
+    const tFact = findF(/noise[- ]cancelling|anc|passive noise/i, 'terminology')[0] || { fid: 'NS-06' };
+    return {
+      claim,
+      classification: 'conflicting',
+      explanation: `Contradicts Terminology Guideline ${tFact.fid}: NovaSound headphones do not feature active noise cancellation (ANC). Approved term is "passive noise isolation".`,
+      sourceFact: tFact.fid,
+      sourceFacts: [tFact.fid]
+    };
+  }
+
+  // 4. Driver Size (40 mm vs other)
+  const driverMatch = claim.match(/(\d+)\s*mm/i);
+  if (driverMatch && (lc.includes('driver') || lc.includes('dynamic'))) {
+    const mm = parseInt(driverMatch[1], 10);
+    const dFact = findF(/driver|dynamic/i, 'product')[0] || { fid: 'NS-03' };
+    if (mm === 40) {
+      return {
+        claim,
+        classification: 'supported',
+        explanation: `Supported by Product Spec ${dFact.fid}: NovaSound headphones use 40 mm custom-tuned dynamic drivers.`,
+        sourceFact: dFact.fid,
+        sourceFacts: [dFact.fid]
+      };
+    } else {
+      return {
+        claim,
+        classification: 'conflicting',
+        explanation: `Contradicts Product Spec ${dFact.fid}: NovaSound headphones use 40 mm dynamic drivers, not ${mm} mm.`,
+        sourceFact: dFact.fid,
+        sourceFacts: [dFact.fid]
+      };
+    }
+  }
+
+  // 5. Commute / Target Audience
+  if (lc.includes('commute') || lc.includes('commuter') || lc.includes('remote worker') || lc.includes('workday')) {
+    const aFact = findF(/commuter|commute|remote worker/i, 'product')[0] || { fid: 'NS-02' };
+    return {
+      claim,
+      classification: 'supported',
+      explanation: `Supported by Target Audience Fact ${aFact.fid}: NovaSound is designed for commuters and remote workers.`,
+      sourceFact: aFact.fid,
+      sourceFacts: [aFact.fid]
+    };
+  }
+
+  // 6. Bluetooth / Connectivity
+  if (hasBt) {
+    const cFact = findF(/bluetooth|connectivity|3\.5/i, 'product')[0] || { fid: 'NS-04' };
+    if (lc.includes('5.2') || lc.includes('3.5') || !lc.includes('bluetooth 5.')) {
+      return {
+        claim,
+        classification: 'supported',
+        explanation: `Supported by Connectivity Spec ${cFact.fid}: Supports Bluetooth 5.2 and includes 3.5 mm audio jack.`,
+        sourceFact: cFact.fid,
+        sourceFacts: [cFact.fid]
+      };
+    }
+  }
+
+  // 7. Warranty
+  if (lc.includes('warranty')) {
+    const wFact = findF(/warranty/i, 'rule')[0] || { fid: 'NS-07' };
+    if (lc.includes('1-year') || lc.includes('1 year') || lc.includes('one year')) {
+      return {
+        claim,
+        classification: 'supported',
+        explanation: `Supported by Warranty Policy ${wFact.fid}: All NovaSound products carry a 1-year manufacturer warranty.`,
+        sourceFact: wFact.fid,
+        sourceFacts: [wFact.fid]
+      };
+    } else {
+      return {
+        claim,
+        classification: 'conflicting',
+        explanation: `Contradicts Warranty Policy ${wFact.fid}: Verified warranty is 1 year, not the claimed period.`,
+        sourceFact: wFact.fid,
+        sourceFacts: [wFact.fid]
+      };
+    }
+  }
+
+  // Check custom approved facts in allFacts (e.g. guidelines approved from gaps or added by user)
+  for (const fact of allFacts) {
+    if (['NS-01','NS-02','NS-03','NS-04','NS-05','NS-06','NS-07'].includes(fact.fid)) continue;
+    const tokens = (fact.title + ' ' + fact.content).toLowerCase().match(/\b[a-z0-9]{3,}\b/g) || [];
+    const stopWords = new Set(['the','and','for','with','are','all','not','this','that','from','they','have','our','your','use','any','single']);
+    const meaningful = tokens.filter(t => !stopWords.has(t));
+    const matched = meaningful.filter(t => lc.includes(t));
+    if (matched.length >= 2 || (matched.length === 1 && matched[0].length >= 4 && lc.includes(matched[0]))) {
+      return {
+        claim,
+        classification: 'supported',
+        explanation: `Supported by approved brand fact ${fact.fid} (${fact.title}): "${fact.content}".`,
+        sourceFact: fact.fid,
+        sourceFacts: [fact.fid]
+      };
+    }
+  }
+
+  // 8. Guideline Gap Check (unmentioned brand topics: waterproof, wireless charging, solar, materials, return policy, pricing)
+  const isGapTopic = /water|waterproof|water-resist|ipx|sweat|solar|wireless charging|trial period|money-back|refund policy|return policy/i.test(lc);
+  const factTopicsRegex = /battery|\bhours?\b|\bcharge\b|driver|dynamic|\b\d+\s*mm\b|bluetooth|3\.5\s*mm|audio jack|noise[- ]cancelling|\banc\b|passive noise|warranty|commut|remote worker|superlative|most trusted|trusted|\bbest\b/i;
+
+  if (isGapTopic || !factTopicsRegex.test(lc)) {
+    let specificTopic = '';
+    if (lc.includes('water') || lc.includes('ipx') || lc.includes('sweat')) specificTopic = 'water resistance or IP ratings';
+    else if (lc.includes('solar')) specificTopic = 'solar charging capabilities';
+    else if (lc.includes('return') || lc.includes('refund') || lc.includes('trial') || lc.includes('money-back')) specificTopic = 'return policies or trial periods';
+    else if (lc.includes('price') || lc.includes('cost') || lc.includes('discount') || lc.includes('sale')) specificTopic = 'pricing or promotional claims';
+
+    return {
+      claim,
+      classification: 'gap',
+      explanation: specificTopic
+        ? `Guideline Gap: No approved brand guidelines or specifications exist regarding ${specificTopic}.`
+        : 'Guideline Gap: No approved brand guidelines, product specifications, or rules exist in the Fact Store covering this topic.',
+      sourceFact: null,
+      sourceFacts: []
+    };
+  }
+
+  // 9. Insufficient Evidence Fallback (touches a known brand topic, but lacks an adequate supporting approved fact)
+  return {
+    claim,
+    classification: 'insufficient',
+    explanation: 'Insufficient evidence: No adequate approved brand fact found in the Fact Store to substantiate this assertion.',
+    sourceFact: null,
+    sourceFacts: []
+  };
+}
+
+/* ─── DRAFT VERSIONING & INTEGRITY STATE ─── */
+let currentDraftVersion = 1;
+let verifiedCopy = '';
+let hasDecision = false;
+let lastDecisionType = null;
+let lastDecisionInfo = null;
+
+function initDraftVersion() {
+  const log = loadAudit();
+  let max = 0;
+  (log || []).forEach(e => {
+    const vStr = String(e.version || 'v1');
+    const m = vStr.match(/(\d+)/);
+    if (m) {
+      const num = parseInt(m[1], 10);
+      if (num > max) max = num;
+    }
+  });
+  currentDraftVersion = max > 0 ? max + 1 : 1;
+}
+
+function handleCopyInput() {
+  const current = (document.getElementById('copyIn')?.value || '').trim();
+  const vBadge = document.getElementById('draftVersionBadge');
+  const sBadge = document.getElementById('draftStatusBadge');
+  const rTag = document.getElementById('revVersionTag');
+  const staleWarn = document.getElementById('staleWarn');
+  const btnApprove = document.getElementById('btnApprove');
+  const btnChanges = document.getElementById('btnChanges');
+  const btnReject = document.getElementById('btnReject');
+  const decRes = document.getElementById('decRes');
+
+  if (!verifiedCopy) {
+    if (vBadge) vBadge.textContent = `Draft v${currentDraftVersion}`;
+    if (sBadge) {
+      sBadge.textContent = 'Unchecked';
+      sBadge.style.background = 'rgba(255,255,255,0.06)';
+      sBadge.style.color = 'var(--txm)';
+    }
+    if (staleWarn) staleWarn.style.display = 'none';
+    return;
+  }
+
+  const isModified = current !== verifiedCopy;
+
+  if (isModified) {
+    const nextVer = hasDecision ? currentDraftVersion + 1 : currentDraftVersion;
+    if (vBadge) vBadge.textContent = `Draft v${nextVer} (Modified)`;
+    if (sBadge) {
+      sBadge.textContent = '⚠️ Re-check required';
+      sBadge.style.background = 'rgba(239,68,68,0.15)';
+      sBadge.style.color = '#F87171';
+    }
+    if (rTag) rTag.textContent = `Reviewing: Draft v${nextVer} (Unverified)`;
+    if (staleWarn) staleWarn.style.display = 'block';
+
+    if (btnApprove) btnApprove.disabled = true;
+    if (btnChanges) btnChanges.disabled = true;
+    if (btnReject) btnReject.disabled = true;
+
+    if (decRes && hasDecision) {
+      decRes.classList.remove('show');
+    }
+  } else {
+    if (vBadge) vBadge.textContent = `Draft v${currentDraftVersion}`;
+    if (rTag) rTag.textContent = `Reviewing: Draft v${currentDraftVersion}`;
+    if (staleWarn) staleWarn.style.display = 'none';
+    if (btnApprove) btnApprove.disabled = false;
+    if (btnChanges) btnChanges.disabled = false;
+    if (btnReject) btnReject.disabled = false;
+
+    if (hasDecision && lastDecisionInfo) {
+      if (sBadge) {
+        sBadge.textContent = `${lastDecisionInfo.label} (v${currentDraftVersion})`;
+        sBadge.style.background = lastDecisionInfo.bg;
+        sBadge.style.color = lastDecisionInfo.color;
+      }
+      if (decRes) decRes.classList.add('show');
+    } else {
+      if (sBadge) {
+        sBadge.textContent = `✅ Verified (v${currentDraftVersion})`;
+        sBadge.style.background = 'rgba(34,197,94,0.12)';
+        sBadge.style.color = '#4ADE80';
+      }
+    }
+  }
+}
+
+/* ─── CLASSIFICATION RUNNER ─── */
+let lastResults=null, lastCopy='';
+
+async function runCheck() {
+  const copy=document.getElementById('copyIn').value.trim();
+  if (!copy) { toast('⚠️ Enter some marketing copy first','err'); return; }
+  const facts=loadFacts();
+  if (facts.length===0) { toast('⚠️ No facts in store — add facts first','err'); return; }
+  const s=loadSettings();
+
+  // If draft changed after a decision was made, increment version
+  if (verifiedCopy && copy !== verifiedCopy && hasDecision) {
+    currentDraftVersion++;
+  }
+
+  const btn=document.getElementById('checkBtn');
+  btn.disabled=true;
+  document.getElementById('checkIco').innerHTML='<span class="spin"></span>';
+  document.getElementById('checkTxt').textContent='Analyzing…';
+  document.getElementById('resultsWrap').style.display='none';
+
+  try {
+    let results;
+    let isOffline = false;
+    let fallbackNotice = '';
+
+    if (s.apiKey && s.apiKey.trim()) {
+      try {
+        results = await callGemini(copy, facts, s);
+      } catch (apiErr) {
+        console.warn('Gemini API call failed, falling back to rule-based engine:', apiErr);
+        isOffline = true;
+        fallbackNotice = `⚠️ Gemini API call failed (${apiErr.message}). Showing offline rule-based results.`;
+        results = runOfflineCheck(copy, facts);
+        toast('⚠️ API error — switched to offline demo mode', 'warn');
+      }
+    } else {
+      isOffline = true;
+      await new Promise(r => setTimeout(r, 200));
+      results = runOfflineCheck(copy, facts);
+    }
+
+    lastResults=results; lastCopy=copy;
+    verifiedCopy=copy;
+    hasDecision=false;
+    lastDecisionType=null;
+    lastDecisionInfo=null;
+
+    showResults(results, isOffline, fallbackNotice);
+    document.getElementById('resultsWrap').style.display='block';
+    document.getElementById('revComment').value='';
+    document.getElementById('decRes').classList.remove('show');
+
+    // Update draft version badges & unlock reviewer actions
+    const vBadge = document.getElementById('draftVersionBadge');
+    const sBadge = document.getElementById('draftStatusBadge');
+    const rTag = document.getElementById('revVersionTag');
+    const staleWarn = document.getElementById('staleWarn');
+    const btnApprove = document.getElementById('btnApprove');
+    const btnChanges = document.getElementById('btnChanges');
+    const btnReject = document.getElementById('btnReject');
+
+    if (vBadge) vBadge.textContent = `Draft v${currentDraftVersion}`;
+    if (sBadge) {
+      sBadge.textContent = `✅ Verified (v${currentDraftVersion})`;
+      sBadge.style.background = 'rgba(34,197,94,0.12)';
+      sBadge.style.color = '#4ADE80';
+    }
+    if (rTag) rTag.textContent = `Reviewing: Draft v${currentDraftVersion}`;
+    if (staleWarn) staleWarn.style.display = 'none';
+    if (btnApprove) btnApprove.disabled = false;
+    if (btnChanges) btnChanges.disabled = false;
+    if (btnReject) btnReject.disabled = false;
+
+    document.getElementById('resultsWrap').scrollIntoView({behavior:'smooth',block:'start'});
+
+    if (isOffline) {
+      if (!fallbackNotice) {
+        toast(`⚙️ ${results.length} claim${results.length!==1?'s':''} classified (offline demo mode)`,'info');
+      }
+    } else {
+      toast(`✅ ${results.length} claim${results.length!==1?'s':''} classified (Gemini AI)`,'ok');
+    }
+  } catch(err) {
+    console.error(err);
+    toast('❌ Error: '+err.message,'err');
+  } finally {
+    btn.disabled=false;
+    document.getElementById('checkIco').textContent='🔍';
+    document.getElementById('checkTxt').textContent='Check Copy';
+  }
+}
+
+async function callGemini(copy, facts, settings) {
+  const fb=facts.map(f=>`[${f.fid}] (${f.cat}) ${f.title}: "${f.content}"`).join('\n');
+  const prompt=`You are ProofMark AI, a brand content governance assistant.
+
+APPROVED BRAND FACTS:
+${fb}
+
+MARKETING COPY TO ANALYZE:
+"${copy}"
+
+TASK: Break the copy into individual factual claims. For each claim assign exactly ONE classification:
+- "supported"     — directly and explicitly backed by approved fact(s)
+- "conflicting"   — directly contradicts approved fact(s)
+- "insufficient"  — makes an assertion on a product topic but no approved fact adequately proves it
+- "gap"           — brand topic area where no guideline or policy exists in the fact store at all
+
+RULES:
+- For "supported", list all genuinely relevant Fact ID(s) in the sourceFacts array (e.g. ["NS-01"] or ["NS-01", "NS-04"]).
+- For "conflicting", list all contradicted Fact ID(s) in the sourceFacts array and explain the conflict clearly.
+- For "insufficient", sourceFacts must be empty [] because no adequate approved fact was found. Do not invent Fact IDs.
+- For "gap", clearly state that no matching guideline exists. If a partially related guideline exists, list its Fact ID; otherwise leave sourceFacts as [].
+- Never invent facts. Base your answer ONLY on the provided approved brand facts.
+
+Return ONLY a valid JSON array, no markdown or extra text:
+[{"claim":"...","classification":"supported|conflicting|insufficient|gap","explanation":"...","sourceFacts":["NS-01"]}]`;
+
+  let model = settings.model || 'gemini-3.5-flash-lite';
+  if (model === 'gemini-1.5-flash' || model === 'gemini-1.5-pro' || model === 'gemini-2.0-flash-exp') {
+    model = 'gemini-3.5-flash-lite';
+  }
+
+  const resp=await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${settings.apiKey}`,
+    {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        contents:[{parts:[{text:prompt}]}],
+        generationConfig:{temperature:0.1,responseMimeType:'application/json'}
+      })
+    }
+  );
+  if (!resp.ok) { const e=await resp.json().catch(()=>({})); throw new Error(e?.error?.message||`HTTP ${resp.status}`); }
+  const data=await resp.json();
+  let raw=(data?.candidates?.[0]?.content?.parts?.[0]?.text||'[]').trim();
+  raw=raw.replace(/^```[a-z]*\n?/,'').replace(/\n?```$/,'');
+  const parsed=JSON.parse(raw);
+  if (!Array.isArray(parsed)) throw new Error('Unexpected response format');
+  parsed.forEach(r => {
+    if (!r.sourceFacts && r.sourceFact) {
+      r.sourceFacts = Array.isArray(r.sourceFact) ? r.sourceFact : [r.sourceFact];
+    }
+    if (!r.sourceFacts) r.sourceFacts = [];
+  });
+  return parsed;
+}
+
+/* ─── RENDER RESULTS & EVIDENCE TRACEABILITY ─── */
+const CLS={
+  supported:   {label:'✅ Supported',           bc:'b-supported',   sc:'sp-supported'   },
+  conflicting: {label:'❌ Conflicting',          bc:'b-conflicting', sc:'sp-conflicting' },
+  insufficient:{label:'⚠️ Insufficient Evidence',bc:'b-insufficient',sc:'sp-insufficient'},
+  gap:         {label:'🔍 Guideline Gap',        bc:'b-gap',         sc:'sp-gap'         }
+};
+
+let lastIsOffline = false, lastFallbackNotice = '';
+
+function renderEvidenceCell(r, allFacts, idx=0) {
+  let fids = [];
+  if (Array.isArray(r.sourceFacts) && r.sourceFacts.length) {
+    fids = r.sourceFacts.map(x => String(x||'').trim().toUpperCase()).filter(Boolean);
+  } else if (r.sourceFact) {
+    if (Array.isArray(r.sourceFact)) {
+      fids = r.sourceFact.map(x => String(x||'').trim().toUpperCase()).filter(Boolean);
+    } else {
+      fids = String(r.sourceFact).split(/[,;]+/).map(x => x.trim().toUpperCase()).filter(Boolean);
+    }
+  }
+
+  fids = [...new Set(fids)];
+
+  let evHtml = '';
+  if (fids.length > 0) {
+    evHtml = `<div class="ev-list">` + fids.map(fid => {
+      const fact = (allFacts || []).find(f => f.fid.toUpperCase() === fid);
+      if (fact) {
+        return `<div class="ev-card">
+          <div class="ev-top">
+            <span class="ev-tag" onclick="viewFactInStore('${esc(fact.fid)}')" title="Click to view details in Fact Store">
+              📎 <strong>${esc(fact.fid)}</strong> · ${esc(fact.title)} <span style="font-size:10px">↗</span>
+            </span>
+            <span style="font-size:10px">${cpill(fact.cat)}</span>
+          </div>
+          <div class="ev-quote">"${esc(fact.content)}"</div>
+        </div>`;
+      } else {
+        return `<div class="ev-card">
+          <div class="ev-top">
+            <span class="ev-tag" onclick="viewFactInStore('${esc(fid)}')">📎 <strong>${esc(fid)}</strong></span>
+          </div>
+          <div class="ev-quote" style="color:var(--txf)">(Referenced Fact ID ${esc(fid)} not found in Fact Store)</div>
+        </div>`;
+      }
+    }).join('') + `</div>`;
+  } else {
+    if (r.classification === 'gap') {
+      const sugs = loadSuggestions();
+      const existingSug = sugs.find(s => s.origClaim && s.origClaim.toLowerCase() === (r.claim||'').trim().toLowerCase());
+
+      let sugAction = '';
+      if (existingSug) {
+        sugAction = `<div style="margin-top:8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span style="font-size:11px;background:rgba(245,158,11,0.15);color:#FBBF24;padding:3px 8px;border-radius:5px;font-weight:600;border:1px solid rgba(245,158,11,0.3)">
+            💡 Draft Guideline Pending (${esc(existingSug.fid)})
+          </span>
+          <button class="btn btn-g btn-sm" onclick="goTab('gaps')">View in Draft Guidelines →</button>
+        </div>`;
+      } else {
+        sugAction = `<div style="margin-top:8px">
+          <button class="btn btn-g btn-sm" onclick="openSuggestModalFromIndex(${idx})">💡 Suggest Brand Guideline</button>
+        </div>`;
+      }
+
+      evHtml = `<div class="ev-missing gap">🔍 <strong>Guideline Gap:</strong> No matching brand policy or specification on file in Fact Store.</div>${sugAction}`;
+    } else if (r.classification === 'insufficient') {
+      evHtml = `<div class="ev-missing">⚠️ <strong>Missing Evidence:</strong> No adequate approved fact found in Fact Store.</div>`;
+    } else {
+      evHtml = `<div class="ev-missing">📎 No source fact linked.</div>`;
+    }
+  }
+
+  return `<div>
+    <div style="font-size:13px;line-height:1.5;color:var(--tx)">${esc(r.explanation)}</div>
+    ${evHtml}
+  </div>`;
+}
+
+function openSuggestModalFromIndex(idx) {
+  if (!lastResults || !lastResults[idx]) return;
+  const r = lastResults[idx];
+  openSuggestModal(r.claim, r.explanation, r.sourceFacts?.[0]);
+}
+
+function showResults(results, isOffline=false, fallbackNotice='') {
+  lastIsOffline = isOffline;
+  lastFallbackNotice = fallbackNotice;
+  const notice=document.getElementById('offlineNotice');
+  if (notice) {
+    notice.style.display = isOffline ? 'flex' : 'none';
+    if (fallbackNotice) {
+      notice.innerHTML = `<span>${esc(fallbackNotice)}</span>`;
+    } else {
+      notice.innerHTML = `<span>⚙️ <strong>Offline demo mode</strong> — rule-based results, not AI-generated.</span>`;
+    }
+  }
+  const allFacts=loadFacts();
+  const counts={supported:0,conflicting:0,insufficient:0,gap:0};
+  results.forEach(r=>{ if (counts[r.classification]!==undefined) counts[r.classification]++; });
+  document.getElementById('sumBar').innerHTML=Object.entries(counts)
+    .filter(([,v])=>v>0)
+    .map(([k,v])=>`<div class="spill ${CLS[k].sc}">${CLS[k].label} <strong>${v}</strong></div>`)
+    .join('');
+  document.getElementById('rtbody').innerHTML=results.map((r, idx)=>{
+    const c=CLS[r.classification]||CLS.gap;
+    return `<tr class="row-${r.classification}">
+      <td><div class="claim-q">"${esc(r.claim)}"</div></td>
+      <td><span class="badge ${c.bc}">${c.label}</span></td>
+      <td>${renderEvidenceCell(r, allFacts, idx)}</td>
+    </tr>`;
+  }).join('');
+}
+
+/* ─── REVIEWER DECISION ─── */
+function decide(decision) {
+  if (!lastResults) { toast('⚠️ Run a content check first','err'); return; }
+  const currentCopy = (document.getElementById('copyIn')?.value || '').trim();
+  if (verifiedCopy && currentCopy !== verifiedCopy) {
+    toast('⚠️ Draft was modified since last check. Run Check Copy first!','err');
+    return;
+  }
+  const comment=document.getElementById('revComment').value.trim();
+  const reviewer=document.getElementById('revName').value.trim()||'Anonymous';
+  const brand=document.getElementById('brandIn').value.trim()||'Unknown Brand';
+  const versionTag = `v${currentDraftVersion}`;
+
+  const entry={
+    id:uid(),
+    ts:new Date().toISOString(),
+    version:versionTag,
+    copy:lastCopy,
+    results:lastResults,
+    decision,
+    comment,
+    reviewer,
+    brand
+  };
+  const log=loadAudit(); log.unshift(entry); saveAudit(log); updateStats();
+  const info={
+    approved:{head:'✅ Content Approved',body:`Marked as approved for Draft ${versionTag} and logged to the audit trail.`,label:'✅ Approved',bg:'rgba(34,197,94,0.15)',color:'#4ADE80'},
+    changes: {head:'⚠️ Changes Requested',body:`Returned with changes requested for Draft ${versionTag}.`,label:'⚠️ Changes Requested',bg:'rgba(245,158,11,0.15)',color:'#FBBF24'},
+    rejected:{head:'❌ Content Rejected', body:`Rejected for Draft ${versionTag} and logged to the audit trail.`,label:'❌ Rejected',bg:'rgba(239,68,68,0.15)',color:'#F87171'}
+  }[decision];
+
+  hasDecision = true;
+  lastDecisionType = decision;
+  lastDecisionInfo = info;
+
+  document.getElementById('drH').textContent=info.head;
+  document.getElementById('drB').textContent=info.body+(comment?` Comment: "${comment}"`:'');
+  document.getElementById('decRes').classList.add('show');
+
+  const sBadge = document.getElementById('draftStatusBadge');
+  if (sBadge) {
+    sBadge.textContent = `${info.label} (${versionTag})`;
+    sBadge.style.background = info.bg;
+    sBadge.style.color = info.color;
+  }
+
+  toast(`${info.head} (${versionTag}) — logged`,'ok');
+}
+
+/* ─── RENDER AUDIT LOG ─── */
+function renderAudit() {
+  const log=loadAudit(), el=document.getElementById('auditLog');
+  if (log.length===0) { el.innerHTML=`<div class="empty"><div class="ei">📂</div><h3>No reviews yet</h3><p>Check some content and make a reviewer decision to see entries here.</p></div>`; return; }
+  const DC={approved:{cls:'d-approved',lbl:'✅ Approved'},changes:{cls:'d-changes',lbl:'⚠️ Changes Requested'},rejected:{cls:'d-rejected',lbl:'❌ Rejected'}};
+  el.innerHTML=log.map(e=>{
+    const dc=DC[e.decision]||{cls:'',lbl:'⏳ Pending'};
+    const c={supported:0,conflicting:0,insufficient:0,gap:0};
+    (e.results||[]).forEach(r=>{ if (c[r.classification]!==undefined) c[r.classification]++; });
+    const stats=[
+      c.supported   >0?`<span class="badge b-supported"    style="font-size:10px">✅ ${c.supported}</span>`:'',
+      c.conflicting >0?`<span class="badge b-conflicting"  style="font-size:10px">❌ ${c.conflicting}</span>`:'',
+      c.insufficient>0?`<span class="badge b-insufficient" style="font-size:10px">⚠️ ${c.insufficient}</span>`:'',
+      c.gap         >0?`<span class="badge b-gap"          style="font-size:10px">🔍 ${c.gap}</span>`:''
+    ].filter(Boolean).join('');
+    const verBadge = `<span style="font-size:10.5px;font-family:monospace;background:var(--s2);color:var(--brand);padding:2px 7px;border-radius:99px;font-weight:600;margin-right:6px;border:1px solid var(--bd)">Draft ${esc(e.version || 'v1')}</span>`;
+    const fidsUsed = [...new Set((e.results || []).flatMap(r => {
+      if (Array.isArray(r.sourceFacts)) return r.sourceFacts;
+      if (r.sourceFact) return String(r.sourceFact).split(/[,;]+/);
+      return [];
+    }).map(s => String(s).trim().toUpperCase()).filter(Boolean))];
+    const factPills = fidsUsed.length > 0
+      ? `<div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:6px;align-items:center">
+          <span style="font-size:11px;color:var(--txf)">Evidence:</span>
+          ${fidsUsed.map(f => `<span class="ev-tag" onclick="viewFactInStore('${esc(f)}')" title="Click to view in Fact Store">📎 <strong>${esc(f)}</strong> ↗</span>`).join('')}
+        </div>`
+      : '';
+    return `<div class="aentry">
+      <div class="ahead">
+        <div class="ameta">
+          ${verBadge}
+          <span class="dbadge ${dc.cls}">${dc.lbl}</span>
+          <span style="font-weight:600">${esc(e.brand)}</span>
+          <span style="color:var(--txm);font-size:12px">· ${esc(e.reviewer)}</span>
+        </div>
+        <span class="atime">${fmtT(e.ts)}</span>
+      </div>
+      <div class="aprv">"${esc(trunc(e.copy,200))}"</div>
+      ${stats?`<div class="astats">${stats}</div>`:''}
+      ${factPills}
+      ${e.comment?`<div class="acmt"><strong style="color:var(--txm)">Comment:</strong> ${esc(e.comment)}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+/* ─── GUIDELINE GAP INTELLIGENCE & SUGGESTIONS ─── */
+function getNextFactId() {
+  const facts = loadFacts();
+  const sugs = loadSuggestions();
+  const allIds = [...facts.map(f => f.fid), ...sugs.map(s => s.fid)];
+  let maxNum = 7;
+  allIds.forEach(id => {
+    const m = String(id).match(/NS-(\d+)/i);
+    if (m) {
+      const n = parseInt(m[1], 10);
+      if (n > maxNum) maxNum = n;
+    }
+  });
+  const next = maxNum + 1;
+  return `NS-${next < 10 ? '0' + next : next}`;
+}
+
+function openSuggestModal(claim, explanation, relatedFid) {
+  claim = (claim || '').trim();
+  const lc = claim.toLowerCase();
+  document.getElementById('sugKey').value = '';
+  document.getElementById('sugOrigClaim').value = claim;
+  document.getElementById('sugClaimPreview').textContent = claim ? `"${claim}"` : '(None)';
+
+  // Pre-fill suggested ID
+  document.getElementById('sugId').value = getNextFactId();
+
+  // Infer category, title, proposed guideline
+  let cat = 'product';
+  let title = 'Brand Guideline';
+  let content = '';
+
+  if (lc.includes('water') || lc.includes('ipx') || lc.includes('sweat')) {
+    cat = 'product';
+    title = 'Water Resistance Specification';
+    content = /ipx\d+/i.test(claim)
+      ? `NovaSound headphones are certified ${claim.match(/ipx\d+/i)[0].toUpperCase()} water and sweat resistant for active workouts.`
+      : 'NovaSound headphones feature IPX4 splash and sweat resistance for workouts and light rain.';
+  } else if (lc.includes('solar')) {
+    cat = 'product';
+    title = 'Solar Charging Specification';
+    content = 'NovaSound headphones do not feature solar charging; charging is via USB-C fast charging.';
+  } else if (lc.includes('return') || lc.includes('refund') || lc.includes('trial') || lc.includes('money-back')) {
+    cat = 'rule';
+    title = 'Return & Trial Policy';
+    content = 'NovaSound offers a 30-day risk-free home trial with 100% money-back guarantee.';
+  } else if (lc.includes('price') || lc.includes('cost') || lc.includes('discount') || lc.includes('sale')) {
+    cat = 'rule';
+    title = 'Pricing & Promotional Policy';
+    content = 'All price and discount claims must reflect current MSRP and active verified promotional campaigns.';
+  } else {
+    const words = claim.split(/\s+/).slice(0, 5).join(' ');
+    title = words ? words.charAt(0).toUpperCase() + words.slice(1) : 'New Brand Guideline';
+    content = `Approved brand guideline: ${claim}`;
+  }
+
+  document.getElementById('sugCat').value = cat;
+  document.getElementById('sugTitle').value = title;
+  document.getElementById('sugContent').value = content;
+
+  document.getElementById('suggestModal').classList.add('open');
+}
+
+function closeSuggestModal() {
+  document.getElementById('suggestModal').classList.remove('open');
+}
+
+function saveSuggestion() {
+  const key = document.getElementById('sugKey').value.trim();
+  const fid = document.getElementById('sugId').value.trim().toUpperCase();
+  const cat = document.getElementById('sugCat').value;
+  const title = document.getElementById('sugTitle').value.trim();
+  const content = document.getElementById('sugContent').value.trim();
+  const origClaim = document.getElementById('sugOrigClaim').value.trim();
+
+  if (!fid) { toast('⚠️ Suggested Fact ID is required', 'err'); return; }
+  if (!title) { toast('⚠️ Short title is required', 'err'); return; }
+  if (!content) { toast('⚠️ Guideline text is required', 'err'); return; }
+
+  // Check uniqueness against Fact Store
+  const facts = loadFacts();
+  if (facts.some(f => f.fid.toLowerCase() === fid.toLowerCase())) {
+    toast(`❌ Fact ID "${fid}" already exists in the approved Fact Store`, 'err');
+    return;
+  }
+  if (facts.some(f => f.title.toLowerCase() === title.toLowerCase() || f.content.toLowerCase() === content.toLowerCase())) {
+    toast(`⚠️ An approved brand fact with this title or content already exists in the Fact Store`, 'warn');
+    return;
+  }
+
+  let sugs = loadSuggestions();
+  // Check uniqueness against other draft suggestions
+  if (sugs.some(s => s.fid.toLowerCase() === fid.toLowerCase() && s.key !== key)) {
+    toast(`❌ Suggested ID "${fid}" is already in use by another draft suggestion`, 'err');
+    return;
+  }
+  if (sugs.some(s => s.key !== key && (s.title.toLowerCase() === title.toLowerCase() || s.content.toLowerCase() === content.toLowerCase()))) {
+    toast(`⚠️ An equivalent draft guideline suggestion already exists in pending drafts`, 'warn');
+    return;
+  }
+
+  if (key) {
+    sugs = sugs.map(s => s.key === key ? { ...s, fid, cat, title, content, updated: new Date().toISOString() } : s);
+    toast(`✏️ Draft suggestion ${fid} updated`, 'ok');
+  } else {
+    sugs.push({
+      key: uid(),
+      fid,
+      cat,
+      title,
+      content,
+      origClaim,
+      status: 'draft',
+      created: new Date().toISOString()
+    });
+    toast(`💡 Draft suggestion ${fid} saved for Brand Manager review`, 'ok');
+  }
+
+  saveSuggestions(sugs);
+  closeSuggestModal();
+  renderSuggestions();
+  updateStats();
+
+  if (lastResults) {
+    showResults(lastResults, lastIsOffline, lastFallbackNotice);
+  }
+}
+
+function editSuggestion(key) {
+  const s = loadSuggestions().find(x => x.key === key);
+  if (!s) return;
+  document.getElementById('sugKey').value = key;
+  document.getElementById('sugOrigClaim').value = s.origClaim || '';
+  document.getElementById('sugClaimPreview').textContent = s.origClaim ? `"${s.origClaim}"` : '(None)';
+  document.getElementById('sugId').value = s.fid;
+  document.getElementById('sugCat').value = s.cat;
+  document.getElementById('sugTitle').value = s.title;
+  document.getElementById('sugContent').value = s.content;
+  document.getElementById('suggestModal').classList.add('open');
+}
+
+function deleteSuggestion(key) {
+  if (!confirm('Discard this draft guideline suggestion?')) return;
+  let sugs = loadSuggestions();
+  const s = sugs.find(x => x.key === key);
+  saveSuggestions(sugs.filter(x => x.key !== key));
+  renderSuggestions();
+  updateStats();
+  if (lastResults) {
+    showResults(lastResults, lastIsOffline, lastFallbackNotice);
+  }
+  toast(`🗑️ Draft suggestion ${s?.fid || ''} discarded`, 'info');
+}
+
+function approveSuggestion(key) {
+  const sugs = loadSuggestions();
+  const s = sugs.find(x => x.key === key);
+  if (!s) return;
+
+  const facts = loadFacts();
+  if (facts.some(f => f.fid.toLowerCase() === s.fid.toLowerCase())) {
+    toast(`❌ Fact ID "${s.fid}" already exists in the Fact Store. Please edit the ID first.`, 'err');
+    return;
+  }
+
+  // Explicit approval: Promotes draft to official Fact Store
+  facts.push({
+    key: uid(),
+    fid: s.fid,
+    title: s.title,
+    content: s.content,
+    cat: s.cat,
+    created: new Date().toISOString(),
+    promotedFromGap: true
+  });
+  saveFacts(facts);
+
+  // Remove from suggestions
+  saveSuggestions(sugs.filter(x => x.key !== key));
+
+  renderSuggestions();
+  renderFacts();
+  updateStats();
+
+  if (lastResults) {
+    showResults(lastResults, lastIsOffline, lastFallbackNotice);
+  }
+
+  toast(`🎉 Draft guideline ${s.fid} approved and added to Brand Fact Store!`, 'ok');
+}
+
+function renderSuggestions() {
+  const sugs = loadSuggestions();
+  const list = document.getElementById('suggestionsList');
+  if (!list) return;
+
+  if (sugs.length === 0) {
+    list.innerHTML = `<div class="empty">
+      <div class="ei">💡</div>
+      <h3>No pending draft guidelines</h3>
+      <p>When you check marketing copy and ProofMark AI detects a <strong>Guideline Gap</strong>, click <em>💡 Suggest Brand Guideline</em> to draft a new policy here for brand manager approval.</p>
+      <div style="margin-top:14px">
+        <button class="btn btn-g btn-sm" onclick="goTab('check')">Go to Check Copy →</button>
+      </div>
+    </div>`;
+    return;
+  }
+
+  list.innerHTML = sugs.map(s => `
+    <div class="fcard" style="border-left:3px solid #F59E0B">
+      <div class="fid-badge" style="color:#F59E0B;border-color:rgba(245,158,11,0.3)">${esc(s.fid)}</div>
+      <div class="fbody">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap">
+          <div class="ftitle" style="margin-bottom:0">${esc(s.title)}</div>
+          <span class="badge" style="background:rgba(245,158,11,0.14);color:#FBBF24;border:1px solid rgba(245,158,11,0.3);font-size:10px">⏳ Draft · Pending Approval</span>
+          ${cpill(s.cat)}
+        </div>
+        <div class="fcontent" style="color:var(--tx)">"${esc(s.content)}"</div>
+        ${s.origClaim ? `
+          <div style="margin-top:8px;font-size:11.5px;color:var(--txf);background:var(--s2);padding:6px 10px;border-radius:6px;border:1px solid var(--bd)">
+            <span style="color:var(--txm);font-weight:600">Triggered by Claim:</span> "${esc(s.origClaim)}"
+          </div>
+        ` : ''}
+        <div class="fmeta" style="margin-top:8px">
+          <span style="font-size:11px;color:var(--txf)">Suggested: ${fmt(s.created)}</span>
+        </div>
+      </div>
+      <div class="factions" style="flex-direction:column;gap:6px">
+        <button class="btn btn-ok btn-sm" onclick="approveSuggestion('${s.key}')" title="Approve this draft into the official Fact Store">✅ Approve into Fact Store</button>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-g btn-sm" style="flex:1" onclick="editSuggestion('${s.key}')">✏️ Edit</button>
+          <button class="btn btn-d btn-sm" onclick="deleteSuggestion('${s.key}')" title="Discard draft">🗑️</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ─── MISC ─── */
+function checkNoFacts() {
+  const w=document.getElementById('noFactsWarn');
+  if (w) w.style.display=loadFacts().length===0?'':'none';
+}
+
+['apiModal','editModal','suggestModal'].forEach(id=>{
+  document.getElementById(id).addEventListener('click',function(e){ if (e.target===this) this.classList.remove('open'); });
+});
+
+document.getElementById('revName').addEventListener('blur',function(){
+  saveSettings({...loadSettings(),reviewerName:this.value});
+});
+
+/* ─── INIT ─── */
+(function(){
+  const s=loadSettings();
+  if (s.reviewerName) document.getElementById('revName').value=s.reviewerName;
+  initDraftVersion(); renderFacts(); renderSuggestions(); renderAudit(); updateStats(); updateApiChip(); checkNoFacts(); handleCopyInput();
+})();
+</script>
+</body>
+</html>
