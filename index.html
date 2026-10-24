@@ -1,0 +1,1194 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ProofMark AI — Round 1 Proposal | We Code Coders Hackathon</title>
+  <style>
+    /* ── Google Font ── */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+    /* ── Reset & base ── */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --brand: #2563EB;
+      --brand-d: #1E40AF;
+      --ink: #111827;
+      --muted: #6B7280;
+      --border: #E5E7EB;
+      --bg-soft: #F9FAFB;
+      --green: #16A34A;
+      --red: #DC2626;
+      --yellow: #CA8A04;
+      --blue: #2563EB;
+      --tag-bg-green: #DCFCE7;
+      --tag-fg-green: #15803D;
+      --tag-bg-red: #FEE2E2;
+      --tag-fg-red: #B91C1C;
+      --tag-bg-yellow: #FEF9C3;
+      --tag-fg-yellow: #854D0E;
+      --tag-bg-blue: #DBEAFE;
+      --tag-fg-blue: #1D4ED8;
+      --tag-bg-grey: #F3F4F6;
+      --tag-fg-grey: #374151;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      font-size: 11pt;
+      line-height: 1.7;
+      color: var(--ink);
+      background: #fff;
+    }
+
+    /* ── Page layout ── */
+    .page {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 48px 56px;
+    }
+
+    /* ── Cover ── */
+    .cover {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
+      border-bottom: 3px solid var(--brand);
+      padding-bottom: 48px;
+      margin-bottom: 56px;
+    }
+
+    .cover-badge {
+      font-size: 9pt;
+      font-weight: 600;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--brand);
+      background: var(--tag-bg-blue);
+      padding: 4px 12px;
+      border-radius: 99px;
+      margin-bottom: 24px;
+      display: inline-block;
+    }
+
+    .cover h1 {
+      font-size: 40pt;
+      font-weight: 800;
+      line-height: 1.15;
+      color: var(--ink);
+      margin-bottom: 10px;
+    }
+
+    .cover h1 span {
+      color: var(--brand);
+    }
+
+    .cover .tagline {
+      font-size: 13pt;
+      color: var(--muted);
+      font-weight: 400;
+      max-width: 520px;
+      margin-bottom: 40px;
+    }
+
+    .cover-meta {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px 40px;
+      font-size: 10pt;
+      width: 100%;
+      max-width: 520px;
+    }
+
+    .cover-meta .label {
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .cover-meta .value {
+      font-weight: 600;
+    }
+
+    /* ── Section headings ── */
+    .section {
+      margin-bottom: 48px;
+    }
+
+    .section-num {
+      font-size: 8.5pt;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--brand);
+      margin-bottom: 4px;
+    }
+
+    h2 {
+      font-size: 17pt;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--border);
+    }
+
+    h3 {
+      font-size: 11.5pt;
+      font-weight: 600;
+      color: var(--ink);
+      margin: 22px 0 8px;
+    }
+
+    /* ── Body text ── */
+    p {
+      margin-bottom: 12px;
+    }
+
+    ul,
+    ol {
+      padding-left: 22px;
+      margin-bottom: 12px;
+    }
+
+    li {
+      margin-bottom: 5px;
+    }
+
+    /* ── Callout boxes ── */
+    .callout {
+      border-left: 4px solid var(--brand);
+      background: var(--tag-bg-blue);
+      padding: 12px 16px;
+      border-radius: 0 6px 6px 0;
+      margin: 16px 0;
+      font-size: 10.5pt;
+    }
+
+    .callout.warn {
+      border-color: #F59E0B;
+      background: var(--tag-bg-yellow);
+    }
+
+    .callout.note {
+      border-color: #6B7280;
+      background: var(--tag-bg-grey);
+    }
+
+    .callout strong {
+      font-weight: 700;
+    }
+
+    /* ── Tables ── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 10pt;
+      margin: 14px 0 22px;
+    }
+
+    th {
+      background: var(--bg-soft);
+      font-weight: 600;
+      text-align: left;
+      padding: 9px 12px;
+      border: 1px solid var(--border);
+      color: var(--ink);
+    }
+
+    td {
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      vertical-align: top;
+    }
+
+    tr:nth-child(even) td {
+      background: var(--bg-soft);
+    }
+
+    /* ── Classification tags ── */
+    .tag {
+      display: inline-block;
+      padding: 2px 9px;
+      border-radius: 99px;
+      font-size: 9pt;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .tag.supported {
+      background: var(--tag-bg-green);
+      color: var(--tag-fg-green);
+    }
+
+    .tag.conflict {
+      background: var(--tag-bg-red);
+      color: var(--tag-fg-red);
+    }
+
+    .tag.insuff {
+      background: var(--tag-bg-yellow);
+      color: var(--tag-fg-yellow);
+    }
+
+    .tag.gap {
+      background: var(--tag-bg-blue);
+      color: var(--tag-fg-blue);
+    }
+
+    .tag.verified {
+      background: var(--tag-bg-green);
+      color: var(--tag-fg-green);
+      font-size: 8pt;
+    }
+
+    .tag.assume {
+      background: var(--tag-bg-yellow);
+      color: var(--tag-fg-yellow);
+      font-size: 8pt;
+    }
+
+    .tag.proposed {
+      background: var(--tag-bg-blue);
+      color: var(--tag-fg-blue);
+      font-size: 8pt;
+    }
+
+    .tag.pending {
+      background: var(--tag-bg-grey);
+      color: var(--tag-fg-grey);
+      font-size: 8pt;
+    }
+
+    /* ── Diagram / code block ── */
+    .diagram {
+      background: #0F172A;
+      color: #E2E8F0;
+      font-family: 'Courier New', monospace;
+      font-size: 9pt;
+      line-height: 1.75;
+      padding: 20px 24px;
+      border-radius: 10px;
+      margin: 16px 0 22px;
+      overflow-x: auto;
+      white-space: pre;
+    }
+
+    /* ── Checklist ── */
+    .checklist {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .checklist li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 7px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 10pt;
+    }
+
+    .checklist li:last-child {
+      border-bottom: none;
+    }
+
+    .checklist .box {
+      width: 16px;
+      height: 16px;
+      border: 2px solid var(--border);
+      border-radius: 3px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    /* ── Quote / one-liner ── */
+    blockquote {
+      border-left: 4px solid var(--brand);
+      padding: 10px 16px;
+      margin: 16px 0;
+      font-size: 12pt;
+      font-style: italic;
+      color: var(--ink);
+      background: var(--bg-soft);
+      border-radius: 0 6px 6px 0;
+    }
+
+    /* ── Round pills ── */
+    .round-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 20px 0 8px;
+    }
+
+    .round-pill {
+      background: var(--brand);
+      color: #fff;
+      font-size: 9pt;
+      font-weight: 700;
+      padding: 3px 14px;
+      border-radius: 99px;
+      white-space: nowrap;
+    }
+
+    .round-pill.r2 {
+      background: #7C3AED;
+    }
+
+    .round-pill.r3 {
+      background: #059669;
+    }
+
+    .round-header h3 {
+      margin: 0;
+    }
+
+    /* ── Footer ── */
+    .doc-footer {
+      margin-top: 60px;
+      padding-top: 20px;
+      border-top: 2px solid var(--border);
+      font-size: 9pt;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    /* ── Print / PDF styles ── */
+    @media print {
+      body {
+        font-size: 10pt;
+      }
+
+      .page {
+        padding: 28px 36px;
+        max-width: 100%;
+      }
+
+      .cover {
+        min-height: auto;
+        padding-bottom: 32px;
+        page-break-after: always;
+      }
+
+      .section {
+        page-break-inside: avoid;
+      }
+
+      h2 {
+        page-break-after: avoid;
+      }
+
+      .diagram {
+        font-size: 8pt;
+      }
+
+      @page {
+        margin: 18mm 16mm;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+
+    <!-- ══════════════════════════════════════════
+       COVER PAGE
+  ══════════════════════════════════════════ -->
+    <div class="cover">
+      <span class="cover-badge">We Code Coders Hackathon — Round 1 Proposal</span>
+      <h1>Proof<span>Mark</span> AI</h1>
+      <p class="tagline">
+        An evidence-first brand content governance tool that checks marketing copy
+        against approved facts and guidelines before it is published.
+      </p>
+      <div class="cover-meta">
+        <span class="label">Team Name</span>
+        <span class="value">Innovators</span>
+
+        <span class="label">Member 1</span>
+        <span class="value">Saloni Chipde · Product Lead &amp; Proposal Coordination · [Institution — to be
+          filled]</span>
+
+        <span class="label">Member 2</span>
+        <span class="value">Pranjali Bakde · Frontend &amp; User Interface · [Institution — to be filled]</span>
+
+        <span class="label">Member 3</span>
+        <span class="value">Aarti Shende · Backend &amp; Data Management · [Institution — to be filled]</span>
+
+        <span class="label">Member 4</span>
+        <span class="value">Riddhi Koche · AI Logic, Testing &amp; Documentation · [Institution — to be filled]</span>
+
+        <span class="label">Contact Email</span>
+        <span class="value">[team-email@example.com — to be filled]</span>
+
+        <span class="label">Submission Date</span>
+        <span class="value">21 October 2026</span>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+       EVIDENCE KEY
+  ══════════════════════════════════════════ -->
+    <div class="section">
+      <div class="callout note">
+        <strong>How we label claims in this document</strong><br />
+        <span class="tag verified">✅ Verified Fact</span> — commonly documented and independently checkable &nbsp;
+        <span class="tag assume">🔶 Assumption</span> — a reasonable hypothesis, not independently verified by us &nbsp;
+        <span class="tag proposed">💡 Proposed Feature</span> — a design intent for our tool, not yet built
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+       1. PROBLEM UNDERSTANDING
+  ══════════════════════════════════════════ -->
+    <div class="section">
+      <div class="section-num">Section 01</div>
+      <h2>Problem Understanding</h2>
+
+      <h3>What is happening</h3>
+      <p>
+        Marketing and brand teams publish content across social media, advertisements,
+        press releases, email campaigns, and websites. Under deadline pressure or as
+        teams grow, published content sometimes:
+      </p>
+      <ul>
+        <li>States product specifications that contradict approved internal facts (e.g., wrong battery life, wrong
+          pricing tier)</li>
+        <li>Uses tone, wording, or terminology that violates the brand's own published guidelines</li>
+        <li>Makes broad, unverifiable claims — such as "world's best" or "most trusted" — with no approved evidence
+          behind them</li>
+        <li>Relies on brand guidelines that exist as scattered PDFs or internal wikis that individuals selectively
+          recall</li>
+      </ul>
+
+      <h3>Why it matters</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Observation</th>
+            <th>Label</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Manual content review requires a reviewer to read and cross-check documents by hand, creating a
+              bottleneck before publication</td>
+            <td><span class="tag verified">✅ Verified Fact</span></td>
+          </tr>
+          <tr>
+            <td>Brand guidelines are frequently stored in long, distributed documents rather than structured, queryable
+              formats</td>
+            <td><span class="tag verified">✅ Verified Fact</span></td>
+          </tr>
+          <tr>
+            <td>Factual inaccuracies in marketing copy — particularly around product specifications — can undermine
+              customer trust</td>
+            <td><span class="tag assume">🔶 Assumption</span></td>
+          </tr>
+          <tr>
+            <td>Small marketing teams and agencies often lack dedicated compliance or brand governance staff</td>
+            <td><span class="tag assume">🔶 Assumption</span></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>The core gap</h3>
+      <p>
+        There is no lightweight, accessible tool that automatically checks whether a
+        marketing claim is <strong>supported by</strong>, <strong>conflicting with</strong>, or simply
+        <strong>not addressed by</strong> a company's own approved facts and guidelines — and then
+        surfaces that finding clearly to a human reviewer before the content goes live.
+      </p>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+       2. TARGET USERS
+  ══════════════════════════════════════════ -->
+    <div class="section">
+      <div class="section-num">Section 02</div>
+      <h2>Target Users</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Role</th>
+            <th>Pain Point</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Marketing Copywriter</strong></td>
+            <td>Creates content</td>
+            <td>May not have all brand facts memorised; risks publishing errors under time pressure</td>
+          </tr>
+          <tr>
+            <td><strong>Brand Manager</strong></td>
+            <td>Owns guidelines</td>
+            <td>Spends time correcting content after it has already been published</td>
+          </tr>
+          <tr>
+            <td><strong>Compliance / Legal Reviewer</strong></td>
+            <td>Approves content before publish</td>
+            <td>Manual review is slow; no structured, searchable audit trail exists</td>
+          </tr>
+          <tr>
+            <td><strong>Agency Account Manager</strong></td>
+            <td>Manages content for clients</td>
+            <td>Client-facing copy must exactly match client-approved product facts</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout">
+        <strong>Primary MVP user:</strong> A marketing copywriter who submits a draft for automated checking before it
+        is handed to a human reviewer.
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+       3. PROPOSED SOLUTION
+  ══════════════════════════════════════════ -->
+    <div class="section">
+      <div class="section-num">Section 03</div>
+      <h2>Proposed Solution</h2>
+
+      <blockquote>
+        ProofMark AI is an evidence-first brand content governance tool that checks
+        marketing copy against a company's own approved facts and guidelines before
+        it is published.
+      </blockquote>
+
+      <h3>What ProofMark AI does <span class="tag proposed">💡 Proposed Features</span></h3>
+      <ol>
+        <li><strong>Stores approved brand facts and rules</strong> — product specifications, tone guidelines, preferred
+          and banned terminology, and approved claims</li>
+        <li><strong>Accepts submitted marketing text</strong> — a caption, ad copy, press release snippet, or any draft
+          content</li>
+        <li><strong>Checks each claim</strong> in the submitted text against the stored fact base and classifies it:
+          <ul>
+            <li><span class="tag supported">✅ Supported</span> — claim matches an approved fact</li>
+            <li><span class="tag conflict">❌ Conflicting</span> — claim directly contradicts an approved fact</li>
+            <li><span class="tag insuff">⚠️ Insufficient Evidence</span> — claim cannot be verified against any stored
+              fact (flagged as unverifiable, not automatically false)</li>
+            <li><span class="tag gap">🔍 Guideline Gap</span> — no relevant guideline or fact exists in the system yet
+              (flagged for the brand manager to fill, not auto-rejected)</li>
+          </ul>
+        </li>
+        <li><strong>Explains every flag</strong> — shows which specific fact or rule triggered the classification</li>
+        <li><strong>Enables human review</strong> — a reviewer can comment, request changes, or approve the content</li>
+        <li><strong>Logs decisions</strong> — records what was approved, by whom, and when</li>
+      </ol>
+
+      <h3>What ProofMark AI does NOT do</h3>
+      <ul>
+        <li>Does <strong>not</strong> automatically reject or publish content — a human makes every final call</li>
+        <li>Does <strong>not</strong> invent evidence or search the internet for supporting facts</li>
+        <li>Does <strong>not</strong> treat a missing guideline as proof that a claim is false</li>
+        <li>Does <strong>not</strong> replace human judgment — it structures and speeds up reviewer work</li>
+      </ul>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+       4. WORKFLOW
+  ══════════════════════════════════════════ -->
+    <div class="section">
+      <div class="section-num">Section 04</div>
+      <h2>Workflow</h2>
+
+      <div class="diagram">┌─────────────────────────────────────────────────────────────────────────┐
+        │ LANE 1 · Brand Manager │
+        │ │
+        │ [ Uploads approved facts, rules, and terminology into Fact Store ] │
+        │ [ Fills Guideline Gaps flagged by the system ] │
+        └────────────────────────┬────────────────────────────────────────────────┘
+        │
+        ┌────────────────────────▼────────────────────────────────────────────────┐
+        │ LANE 2 · Copywriter │
+        │ │
+        │ [ Submits draft marketing text via the submission form ] │
+        │ [ Revises content after reviewer returns it with comments ] │
+        └────────────────────────┬────────────────────────────────────────────────┘
+        │
+        ┌────────────────────────▼────────────────────────────────────────────────┐
+        │ LANE 3 · ProofMark AI Engine │
+        │ │
+        │ 1. Read submitted text, identify individual claims │
+        │ 2. Compare each claim against stored facts using LLM prompt │
+        │ 3. Classify and annotate: │
+        │ ✅ Supported → Green · matched fact displayed │
+        │ ❌ Conflicting → Red · contradicted fact + explanation │
+        │ ⚠️ Insufficient Ev. → Yellow · "no approved fact covers this" │
+        │ 🔍 Guideline Gap → Blue · "no guideline exists yet" │
+        │ 4. Return structured results to Reviewer dashboard │
+        └────────────────────────┬────────────────────────────────────────────────┘
+        │
+        ┌────────────────────────▼────────────────────────────────────────────────┐
+        │ LANE 4 · Human Reviewer │
+        │ │
+        │ [ Reads flagged results and explanations ] │
+        │ [ Adds comment / Requests changes / Approves content ] │
+        │ [ Notifies Brand Manager of any Guideline Gaps ] │
+        └────────────────────────┬────────────────────────────────────────────────┘
+        │
+        ┌────────────────────────▼────────────────────────────────────────────────┐
+        │ AUDIT LOG │
+        │ Content snapshot · Classification results · Reviewer name · │
+        │ Decision (Approved / Changes Requested) · Timestamp │
+        └─────────────────────────────────────────────────────────────────────────┘</div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+       5. FEATURES
+  ══════════════════════════════════════════ -->
+    <div class="section">
+      <div class="section-num">Section 05</div>
+      <h2>Key Features</h2>
+
+      <h3>Must-Have — MVP Scope</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Feature</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td><strong>Brand Fact Store</strong></td>
+            <td>Add, view, edit, and delete approved product facts and brand rules</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td><strong>Content Submission Form</strong></td>
+            <td>Paste or type draft marketing text for checking</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td><strong>Four-Category Classification</strong></td>
+            <td>Supported · Conflicting · Insufficient Evidence · Guideline Gap</td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td><strong>Explanation Panel</strong></td>
+            <td>Shows which specific fact or rule triggered each flag</td>
+          </tr>
+          <tr>
+            <td>5</td>
+            <td><strong>Human Reviewer Actions</strong></td>
+            <td>Comment, request changes, approve</td>
+          </tr>
+          <tr>
+            <td>6</td>
+            <td><strong>Audit Log</strong></td>
+            <td>Timestamped record of every review decision and approval</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Should-Have — Round 2 Stretch Goals</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Feature</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>7</td>
+            <td><strong>Terminology Checker</strong></td>
+            <td>Flags banned words or enforces preferred alternatives from a curated list</td>
+          </tr>
+          <tr>
+            <td>8</td>
+            <td><strong>Guideline Gap Detector</strong> ⭐</td>
+            <td>Surfaces missing guidelines as action items for the brand manager — does not auto-reject; turns gaps
+              into tasks</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Future Scope Only — Not in MVP</h3>
+      <ul>
+        <li>Tone analysis (formal, casual, aggressive)</li>
+        <li>Confidence scoring per classification</li>
+        <li>Multi-brand workspaces for agencies</li>
+        <li>CMS or publishing platform integrations</li>
+      </ul>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+       6. ORIGINALITY & DIFFERENTIATION
+  ══════════════════════════════════════════ -->
+    <div class="section">
+      <div class="section-num">Section 06</div>
+      <h2>Originality &amp; Differentiation</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Existing Tool</th>
+            <th>What it does</th>
+            <th>What it misses</th>
+            <th>Label</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Grammarly</td>
+            <td>Grammar, tone, clarity</td>
+            <td>Does not check claims against brand-specific facts</td>
+            <td><span class="tag verified">✅ Verified</span></td>
+          </tr>
+          <tr>
+            <td>Jasper AI / Copy.ai</td>
+            <td>Generates marketing content</td>
+            <td>Does not verify content against approved facts</td>
+            <td><span class="tag verified">✅ Verified</span></td>
+          </tr>
+          <tr>
+            <td>Brand wikis / style PDFs</td>
+            <td>Store guidelines as static documents</td>
+            <td>Not queryable; no automatic checking</td>
+            <td><span class="tag verified">✅ Verified</span></td>
+          </tr>
+          <tr>
+            <td>Enterprise tools (e.g., Bynder)</td>
+            <td>Brand asset management and workflows</td>
+            <td>Likely expensive and inaccessible to small teams</td>
+            <td><span class="tag assume">🔶 Assumption</span></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>What makes ProofMark AI different</h3>
+      <ul>
+        <li><strong>Evidence-first logic:</strong> Every flag includes a reason and a specific source fact — no mystery
+          rejections</li>
+        <li><strong>Honest uncertainty:</strong> The tool distinguishes "this contradicts an approved fact" from "we
+          simply have no fact on file" — missing evidence is never treated as proof of wrongness</li>
+        <li><strong>Guideline Gap Detector:</strong> Instead of silently failing or auto-rejecting, the tool flags that
+          a brand guideline is missing and turns it into an action item for the brand manager</li>
+        <li><strong>Human-in-the-loop by design:</strong> The tool assists and structures review; it never replaces the
+          reviewer</li>
+        <li><strong>Accessible scope:</strong> Built for small teams, not enterprise procurement budgets</li>
+      </ul>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+       7. TECHNICAL PLAN & TECHNOLOGY STACK
+  ══════════════════════════════════════════ -->
+    <div class="section">
+      <div class="section-num">Section 07</div>
+      <h2>Technical Plan &amp; Technology Stack</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Layer</th>
+            <th>Technology</th>
+            <th>Reason</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Frontend</strong></td>
+            <td>HTML + CSS + JavaScript (or React)</td>
+            <td>Simple to build quickly; no heavy setup overhead</td>
+          </tr>
+          <tr>
+            <td><strong>Backend</strong></td>
+            <td>Python + Flask</td>
+            <td>Beginner-friendly; widely used in hackathon prototypes</td>
+          </tr>
+          <tr>
+            <td><strong>AI / NLP</strong></td>
+            <td>OpenAI API (GPT-4o-mini) or Google Gemini API (free tier)</td>
+            <td>Handles semantic claim comparison via structured prompts</td>
+          </tr>
+          <tr>
+            <td><strong>Storage</strong></td>
+            <td>JSON files or SQLite</td>
+            <td>Sufficient for a prototype; no database configuration required</td>
+          </tr>
+          <tr>
+            <td><strong>Deployment</strong></td>
+            <td>Render.com or Vercel (free tiers)</td>
+            <td>Easy, free deployment for a live demo link</td>
+          </tr>
+          <tr>
+            <td><strong>Design</strong></td>
+            <td>Figma or Canva</td>
+            <td>Wireframes and visual assets for the proposal and presentation</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>How the AI check works (simplified)</h3>
+      <ol>
+        <li>All approved brand facts are loaded as context text</li>
+        <li>The submitted draft + loaded facts are sent to the LLM with a structured prompt</li>
+        <li>The prompt asks: <em>"For each claim in this draft, classify it as Supported, Conflicting, Insufficient
+            Evidence, or Guideline Gap — based only on the facts provided. Return structured JSON."</em></li>
+        <li>The JSON response is parsed and displayed on the frontend with colour-coded annotations and explanations
+        </li>
+      </ol>
+
+      <div class="callout warn">
+        <strong>Known risk:</strong> LLM outputs can vary in format or reasoning.
+        <strong>Mitigation:</strong> Enforce strict JSON output format in the prompt and validate the structure before
+        displaying results.
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+       8. TEAM RESPONSIBILITIES
+  ══════════════════════════════════════════ -->
+    <div class="section">
+      <div class="section-num">Section 08</div>
+      <h2>Four Team Member Responsibilities</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Member</th>
+            <th>Role</th>
+            <th>Key Responsibilities</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Saloni Chipde</strong></td>
+            <td>Product Lead</td>
+            <td>Write proposal, design workflow diagram, coordinate team, prepare demo scenario and final pitch</td>
+          </tr>
+          <tr>
+            <td><strong>Pranjali Bakde</strong></td>
+            <td>Frontend Developer</td>
+            <td>Build the fact store page, content submission form, classification results panel, and reviewer actions
+              UI</td>
+          </tr>
+          <tr>
+            <td><strong>Aarti Shende</strong></td>
+            <td>Backend Developer</td>
+            <td>Build Flask backend, integrate LLM API, handle classification response parsing, manage audit log</td>
+          </tr>
+          <tr>
+            <td><strong>Riddhi Koche</strong></td>
+            <td>AI / Prompt Lead &amp; Documentation</td>
+            <td>Design and test LLM prompts, prepare sample fact sheets and test cases, validate classification
+              accuracy, maintain project documentation</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+       9. THREE-ROUND ROADMAP
+  ══════════════════════════════════════════ -->
+    <div class="section">
+      <div class="section-num">Section 09</div>
+      <h2>Three-Round Roadmap</h2>
+
+      <div class="round-header">
+        <span class="round-pill">Round 1</span>
+        <h3>Proposal — Concept &amp; Design</h3>
+      </div>
+      <ul>
+        <li>Finalise and submit this proposal document</li>
+        <li>Draw the workflow swimlane diagram</li>
+        <li>Define feature scope and team responsibilities</li>
+        <li>Verify submission requirements against the official problem statement</li>
+      </ul>
+
+      <div class="round-header">
+        <span class="round-pill r2">Round 2</span>
+        <h3>Prototype — Working MVP</h3>
+      </div>
+      <ul>
+        <li>Build the brand fact store UI (add, view, edit facts)</li>
+        <li>Build the content submission form</li>
+        <li>Connect the LLM API with the structured classification prompt</li>
+        <li>Display colour-coded classified results with explanations</li>
+        <li>Add reviewer action buttons (comment, approve, request changes)</li>
+        <li>Add basic audit log</li>
+        <li>Deploy to Render.com or Vercel for a live demo link</li>
+      </ul>
+
+      <div class="round-header">
+        <span class="round-pill r3">Round 3</span>
+        <h3>Final Presentation — Polish &amp; Pitch</h3>
+      </div>
+      <ul>
+        <li>Polish UI and resolve edge-case bugs</li>
+        <li>Prepare a live demo using the NovaSound scenario</li>
+        <li>Record a backup screen recording in case of live demo failure</li>
+        <li>Build a 5–7 minute pitch: problem → solution → live demo → impact → future scope</li>
+        <li>Prepare answers for likely judge questions</li>
+      </ul>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+       10. EXPECTED IMPACT
+  ══════════════════════════════════════════ -->
+    <div class="section">
+      <div class="section-num">Section 10</div>
+      <h2>Expected Impact</h2>
+
+      <h3>Direct impact</h3>
+      <ul>
+        <li>Reduces time spent on manual brand fact-checking before publication</li>
+        <li>Reduces the likelihood of publishing product claims that contradict approved specifications</li>
+        <li>Creates a traceable, timestamped record of what was reviewed and approved</li>
+        <li>Turns missing guidelines into explicit action items rather than silent failures</li>
+      </ul>
+
+      <h3>Who benefits</h3>
+      <ul>
+        <li>Copywriters who want fast, structured feedback before a draft goes to human review</li>
+        <li>Brand managers who want to stop correcting the same factual errors repeatedly</li>
+        <li>Reviewers and legal teams who need a documented approval audit trail</li>
+      </ul>
+
+      <div class="callout warn">
+        <strong>Scale potential</strong> <span class="tag assume">🔶 Assumption</span><br />
+        Small marketing agencies and in-house brand teams that lack dedicated compliance staff are the most likely early
+        adopters.
+        The evidence-first and human-in-the-loop governance model could extend to regulated sectors where marketing
+        claims carry legal weight — such as healthcare, financial services, and food and nutrition.
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+       11. FUTURE SCOPE
+  ══════════════════════════════════════════ -->
+    <div class="section">
+      <div class="section-num">Section 11</div>
+      <h2>Future Scope</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>Why it matters</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Multi-brand workspaces</td>
+            <td>Agencies managing content for multiple clients from one dashboard</td>
+          </tr>
+          <tr>
+            <td>CMS plugin (WordPress, HubSpot)</td>
+            <td>Check content at the point of creation, not just before final submission</td>
+          </tr>
+          <tr>
+            <td>Version history for brand facts</td>
+            <td>Track how guidelines evolve over time and see which version was active during any approval</td>
+          </tr>
+          <tr>
+            <td>Role-based access control</td>
+            <td>Separate permissions for writers, reviewers, and brand administrators</td>
+          </tr>
+          <tr>
+            <td>Confidence scoring</td>
+            <td>Show how strongly a fact supports or contradicts a claim, rather than a binary result</td>
+          </tr>
+          <tr>
+            <td>Sector-specific rule templates</td>
+            <td>Pre-built rulesets for pharma, finance, and food marketing compliance</td>
+          </tr>
+          <tr>
+            <td>Browser extension</td>
+            <td>Check claims in real time while writing anywhere on the web</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+       12. DEMO SCENARIO — NOVASOUND
+  ══════════════════════════════════════════ -->
+    <div class="section">
+      <div class="section-num">Section 12</div>
+      <h2>Demo Scenario — NovaSound <em style="font-size:9pt; font-weight:400; color:var(--muted)">(fictional
+          company)</em></h2>
+
+      <div class="callout note">
+        NovaSound is a <strong>fictional consumer audio brand</strong> created for this demonstration. All facts,
+        figures, and copy below are invented for illustrative purposes only.
+      </div>
+
+      <h3>Setup</h3>
+      <p>NovaSound makes wireless headphones. Their marketing team uses ProofMark AI to check campaign copy before it
+        goes live. The brand manager has loaded the following approved facts into the system:</p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Fact ID</th>
+            <th>Approved Fact</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>NS-01</td>
+            <td>NovaSound headphones offer up to 10 hours of battery life.</td>
+          </tr>
+          <tr>
+            <td>NS-02</td>
+            <td>NovaSound is designed for commuters and remote workers.</td>
+          </tr>
+          <tr>
+            <td>NS-03</td>
+            <td>NovaSound uses 40 mm custom-tuned drivers.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p><em>Note: No approved fact exists yet regarding market rankings, trust ratings, or awards.</em></p>
+
+      <h3>Draft marketing copy submitted for review</h3>
+      <div class="callout" style="font-style:italic; background:#FFF7ED; border-color:#F97316;">
+        "NovaSound headphones deliver up to 15 hours of battery life, making them India's most trusted wireless
+        headphones for everyday use."
+      </div>
+
+      <h3>ProofMark AI output</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Claim</th>
+            <th>Classification</th>
+            <th>Explanation</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>"up to 15 hours of battery life"</td>
+            <td><span class="tag conflict">❌ Conflicting</span></td>
+            <td>Approved fact NS-01 states "up to 10 hours." The draft overstates the specification by 5 hours.</td>
+          </tr>
+          <tr>
+            <td>"India's most trusted wireless headphones"</td>
+            <td><span class="tag insuff">⚠️ Insufficient Evidence</span></td>
+            <td>No approved fact supports a market ranking or trust rating. This claim is flagged as unverifiable
+              against stored facts. It is <strong>not</strong> automatically labelled false — it cannot be approved
+              without supporting evidence being added to the fact store.</td>
+          </tr>
+          <tr>
+            <td>"for everyday use"</td>
+            <td><span class="tag supported">✅ Supported</span></td>
+            <td>Consistent with approved fact NS-02 (designed for commuters and remote workers).</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Reviewer action</h3>
+      <div class="callout">
+        The human reviewer reads the flagged results and adds a comment:<br /><br />
+        <em>"Two issues require attention: correct the battery claim to match NS-01 (10 hours), and either remove the
+          trust ranking claim or provide an approved, sourced fact before this goes live."</em><br /><br />
+        Status set to <strong>Changes Requested</strong>. Draft returned to the copywriter with the comment attached.
+      </div>
+
+      <h3>Why this scenario works for judging</h3>
+      <ul>
+        <li>Three out of four classification types are demonstrated in a single, realistic piece of copy</li>
+        <li>It shows that the tool does <strong>not</strong> auto-reject "India's most trusted" — it flags it honestly
+          as unverifiable</li>
+        <li>It shows a human reviewer staying in control of the final decision</li>
+        <li>The scenario is simple enough to build and demonstrate live within a hackathon timeframe</li>
+      </ul>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+       13. OFFICIAL RULE CHECKS
+  ══════════════════════════════════════════ -->
+    <div class="section">
+      <div class="section-num">Section 13</div>
+      <h2>Official Hackathon Requirements — Pending Verification</h2>
+
+      <div class="callout warn">
+        The items below could not be verified from the problem statement at the time of writing.
+        Each must be confirmed against the official We Code Coders rules before submission.
+        All are marked <span class="tag pending">⏳ Pending</span>.
+      </div>
+
+      <ul class="checklist">
+        <li>
+          <div class="box"></div>
+          <div><span class="tag pending">⏳ Pending</span> &nbsp;<strong>Submission format</strong> — Is Round 1 a PDF,
+            slide deck, online form, or video?</div>
+        </li>
+        <li>
+          <div class="box"></div>
+          <div><span class="tag pending">⏳ Pending</span> &nbsp;<strong>Page or word limit</strong> — Is there a maximum
+            length for the proposal?</div>
+        </li>
+        <li>
+          <div class="box"></div>
+          <div><span class="tag pending">⏳ Pending</span> &nbsp;<strong>Required section headings</strong> — Is a
+            mandatory template provided?</div>
+        </li>
+        <li>
+          <div class="box"></div>
+          <div><span class="tag pending">⏳ Pending</span> &nbsp;<strong>Judging criteria and weightings</strong> — What
+            percentage is originality vs. feasibility vs. impact?</div>
+        </li>
+        <li>
+          <div class="box"></div>
+          <div><span class="tag pending">⏳ Pending</span> &nbsp;<strong>API or technology restrictions</strong> — Are
+            any tools or APIs prohibited?</div>
+        </li>
+        <li>
+          <div class="box"></div>
+          <div><span class="tag pending">⏳ Pending</span> &nbsp;<strong>Prototype requirement in Round 1</strong> — Is a
+            working build required now, or just a concept?</div>
+        </li>
+        <li>
+          <div class="box"></div>
+          <div><span class="tag pending">⏳ Pending</span> &nbsp;<strong>Submission deadline and timezone</strong> —
+            Exact deadline to avoid a late submission</div>
+        </li>
+        <li>
+          <div class="box"></div>
+          <div><span class="tag pending">⏳ Pending</span> &nbsp;<strong>Team size rules</strong> — Is 4 members the
+            allowed maximum and minimum?</div>
+        </li>
+        <li>
+          <div class="box"></div>
+          <div><span class="tag pending">⏳ Pending</span> &nbsp;<strong>Evaluation themes or tracks</strong> — e.g.,
+            EdTech, HealthTech, GovTech — may affect how we frame the problem statement</div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+       FOOTER
+  ══════════════════════════════════════════ -->
+    <div class="doc-footer">
+      <span>ProofMark AI · We Code Coders Hackathon · Round 1 Proposal</span>
+      <span>Submitted 21 October 2026 · Team Innovators</span>
+    </div>
+
+  </div><!-- /page -->
+</body>
+
+</html>
